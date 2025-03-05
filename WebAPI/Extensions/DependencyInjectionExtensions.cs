@@ -86,6 +86,7 @@ public static class DependencyInjectionExtensions
     
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
+        services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthRepository, AuthRepository>();
