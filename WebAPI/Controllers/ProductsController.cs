@@ -33,7 +33,7 @@ public class ProductsController : ControllerBase
     }
     
     [HttpGet("get")]
-    public async Task<IActionResult> GetProductByIdAsync(Guid id)
+    public async Task<IActionResult> GetProductByIdAsync(Guid id) 
     {
         var response = await _productRepository.GetProductByIdAsync(id);
 

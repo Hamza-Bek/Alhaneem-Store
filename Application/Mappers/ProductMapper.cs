@@ -11,10 +11,9 @@ public static class ProductMapper
         {
             Name = product.Name,
             Description = product.Description,
-            Category = product.Category,
+            CategoryId = product.CategoryId,
             Price = product.Price,
             Cost = product.Cost,
-            DiscountPercentage = product.DiscountPercentage,
             Stock = product.Stock,
             StockStatus = product.StockStatus
         };
@@ -26,10 +25,9 @@ public static class ProductMapper
         {
             Name = product.Name,
             Description = product.Description,
-            Category = product.Category,
+            CategoryId = product.CategoryId,
             Price = product.Price,
             Cost = product.Cost,
-            DiscountPercentage = product.DiscountPercentage,
             Stock = product.Stock,
             StockStatus = product.StockStatus
         };

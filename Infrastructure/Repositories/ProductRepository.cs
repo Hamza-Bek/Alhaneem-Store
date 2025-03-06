@@ -46,11 +46,12 @@ public class ProductRepository : IProductRepository
             Id = Guid.NewGuid(),
             Name = product.Name,
             Description = product.Description,
-            Category = product.Category,
+            CategoryId = product.CategoryId,
             Price = product.Price,
             Cost = product.Cost,
-            DiscountPercentage = product.DiscountPercentage,
             Stock = product.Stock,
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow,
             StockStatus = StockStatus.InStock,
         };
         
@@ -70,12 +71,12 @@ public class ProductRepository : IProductRepository
         
         productToUpdate.Name = product.Name;
         productToUpdate.Description = product.Description;
-        productToUpdate.Category = product.Category;
+        productToUpdate.CategoryId = product.CategoryId;
         productToUpdate.Price = product.Price;
         productToUpdate.Cost = product.Cost;
-        productToUpdate.DiscountPercentage = product.DiscountPercentage;
         productToUpdate.Stock = product.Stock;
         productToUpdate.StockStatus = product.StockStatus;
+        productToUpdate.ModifiedAt = DateTime.UtcNow;
         
         await _context.SaveChangesAsync();
 
