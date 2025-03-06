@@ -91,6 +91,9 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthRepository, AuthRepository>();
         
+        services.AddHttpContextAccessor();
+
+        
         services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
         
