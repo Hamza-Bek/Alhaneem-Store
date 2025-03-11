@@ -192,7 +192,6 @@ public class CartRepository : ICartRepository
         
         if (_userIdentity.Id != Guid.Empty)
         {
-            // Get cart for authenticated user
             userCart = await _context.Carts
                 .Include(c => c.Items)
                 .FirstOrDefaultAsync(c => c.UserId == _userIdentity.Id);

@@ -43,9 +43,9 @@ public class CartsController : Controller
    }
    
    [HttpDelete("remove/item")]
-   public async Task<IActionResult> RemoveItemFromCart(Guid cartItemId)
+   public async Task<IActionResult> RemoveItemFromCart(Guid id)
    {
-      var response = await _cartRepository.RemoveItemFromUserCartAsync(cartItemId);
+      var response = await _cartRepository.RemoveItemFromUserCartAsync(id);
       
       return Ok(new ApiResponse<Cart>(
          "Item removed from cart successfully",
@@ -53,4 +53,17 @@ public class CartsController : Controller
          response
       ));
    }
+   
+   [HttpDelete("clear")]
+   public async Task<IActionResult> ClearCart()
+   {
+      var response = await _cartRepository.ClearUserCartAsync();
+      
+      return Ok(new ApiResponse<bool>(
+         "Cart cleared successfully",
+         true,
+         response
+      ));
+   }
+   
 }
