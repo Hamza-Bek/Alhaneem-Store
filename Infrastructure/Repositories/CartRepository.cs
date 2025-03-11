@@ -25,6 +25,9 @@ public class CartRepository : ICartRepository
         if (_userIdentity.Id != Guid.Empty)
         {
             var cart = await _context.Carts
+                .Include(i => i.Items)
+                .ThenInclude(i => i.Product)
+                .Include(i => i.User)
                 .FirstOrDefaultAsync(c => c.UserId == _userIdentity.Id);
 
             return cart;

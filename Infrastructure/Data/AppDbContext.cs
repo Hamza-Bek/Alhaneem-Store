@@ -30,7 +30,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser , IdentityRole<Gui
         // One-to-One: ApplicationUser ↔ Location
         builder.Entity<ApplicationUser>()
             .HasOne(u => u.Location)
-            .WithOne()
+            .WithOne(l => l.User)
             .HasForeignKey<ApplicationUser>(u => u.LocationId)
             .OnDelete(DeleteBehavior.SetNull);
 

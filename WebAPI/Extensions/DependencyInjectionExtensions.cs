@@ -81,12 +81,20 @@ public static class DependencyInjectionExtensions
                 };
             });
         
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+                options.JsonSerializerOptions.WriteIndented = true; // Optional for readability
+            });
+        
         return services;
     }
     
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<ICartRepository, CartRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthRepository, AuthRepository>();
