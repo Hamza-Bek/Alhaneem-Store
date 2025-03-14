@@ -65,6 +65,8 @@
 }
 
 .navbar-button a {
+    display: flex;
+    align-items: center;
     color: var(--black-color);
     font-weight: bolder;
     cursor: pointer;
@@ -98,7 +100,8 @@
     position: fixed;
     top: 20px;
     left: 20px;
-    width: 26px;
+    width: 35px;
+    padding: 1rem;
     height: 26px;
     cursor: pointer;
     z-index: 1;
@@ -145,6 +148,10 @@
     text-decoration: none;
     transition-duration: .25s;
 }
+
+.menu__box menu__item highlighted p{
+    background-color: var(--gold-color);
+}
 .menu__item:hover {
     background-color: #CFD8DC;
 }
@@ -156,6 +163,10 @@
 @media (max-width: 680px) {
     .navbar-items{
         display: none;
+    }
+
+    .navbar-container{
+        width: fit-content;
     }
     
     .navbar-button {
