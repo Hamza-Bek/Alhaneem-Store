@@ -1,0 +1,104 @@
+@page "/Slider"
+
+<div class="product-slider-section">
+    <h2 class="section-title">الاكثر مبيعا</h2>
+    <div class="swiper product-swiper">
+        <div class="swiper-wrapper">
+            <!-- Repeat this block for each product -->
+            <div class="swiper-slide product-card">
+                <img src="imgs/product.jpg" alt="Product Image" class="product-image">
+                <h3 class="product-title">مفروشات الهانم السورية</h3>
+                <p class="product-price">300EGP</p>
+                <button class="add-to-cart-btn">اضف الى العربة</button>
+            </div>
+            <div class="swiper-slide product-card">
+                <img src="imgs/product.jpg" alt="Product Image" class="product-image">
+                <h3 class="product-title">مفروشات الهانم السورية</h3>
+                <p class="product-price">300EGP</p>
+                <button class="add-to-cart-btn">اضف الى العربة</button>
+            </div>
+            <div class="swiper-slide product-card">
+                <img src="imgs/product.jpg" alt="Product Image" class="product-image">
+                <h3 class="product-title">مفروشات الهانم السورية</h3>
+                <p class="product-price">300EGP</p>
+                <button class="add-to-cart-btn">اضف الى العربة</button>
+            </div>
+            <div class="swiper-slide product-card">
+                <img src="imgs/product.jpg" alt="Product Image" class="product-image">
+                <h3 class="product-title">مفروشات الهانم السورية</h3>
+                <p class="product-price">300EGP</p>
+                <button class="add-to-cart-btn">اضف الى العربة</button>
+            </div>
+            <div class="swiper-slide product-card">
+                <img src="imgs/product.jpg" alt="Product Image" class="product-image">
+                <h3 class="product-title">مفروشات الهانم السورية</h3>
+                <p class="product-price">300EGP</p>
+                <button class="add-to-cart-btn">اضف الى العربة</button>
+            </div>
+            <div class="swiper-slide product-card">
+                <img src="imgs/product.jpg" alt="Product Image" class="product-image">
+                <h3 class="product-title">مفروشات الهانم السورية</h3>
+                <p class="product-price">300EGP</p>
+                <button class="add-to-cart-btn">اضف الى العربة</button>
+            </div>
+            <div class="swiper-slide product-card">
+                <img src="imgs/product.jpg" alt="Product Image" class="product-image">
+                <h3 class="product-title">مفروشات الهانم السورية</h3>
+                <p class="product-price">300EGP</p>
+                <button class="add-to-cart-btn">اضف الى العربة</button>
+            </div>
+            <div class="swiper-slide product-card">
+                <img src="imgs/product.jpg" alt="Product Image" class="product-image">
+                <h3 class="product-title">مفروشات الهانم السورية</h3>
+                <p class="product-price">300EGP</p>
+                <button class="add-to-cart-btn">اضف الى العربة</button>
+            </div>
+            <div class="swiper-slide product-card">
+                <img src="imgs/product.jpg" alt="Product Image" class="product-image">
+                <h3 class="product-title">مفروشات الهانم السورية</h3>
+                <p class="product-price">300EGP</p>
+                <button class="add-to-cart-btn">اضف الى العربة</button>
+            </div>
+            <div class="swiper-slide product-card">
+                <img src="imgs/product.jpg" alt="Product Image" class="product-image">
+                <h3 class="product-title">مفروشات الهانم السورية</h3>
+                <p class="product-price">300EGP</p>
+                <button class="add-to-cart-btn">اضف الى العربة</button>
+            </div>
+            <!-- more .swiper-slide -->
+        </div>
+
+        <!-- Navigation arrows -->
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+    </div>
+</div>
+
+
+<script>
+    const swiper = new Swiper('.product-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        breakpoints: {
+            480: {
+                slidesPerView: 1.2, // small devices
+            },
+            640: {
+                slidesPerView: 2,
+            },
+            768: {
+                slidesPerView: 2.5,
+            },
+            1024: {
+                slidesPerView: 3,
+            },
+            1280: {
+                slidesPerView: 4,
+            }
+        }
+    });
+</script>
