@@ -122,6 +122,35 @@
     background-color: #0056b3;
 }
 
+.search-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 40px auto;
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 45px 12px 20px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    outline: none;
+    text-align: right; /* for Arabic */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    right: 15px;
+    font-size: 1.2rem;
+    color: #555;
+    pointer-events: none;
+}
+
 @media (max-width: 1200px) {
     .container {
         flex-direction: column; /* Stack elements vertically */
@@ -174,7 +203,6 @@
         margin: 0 -30px 35px;
     }
 }
-
 
 @media (max-width: 380px) {
     .card-wrapper{
