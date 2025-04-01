@@ -13,4 +13,10 @@
     <PackageReference Include="System.Xml.XPath" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Microsoft.Extensions.Identity.Stores">
+      <HintPath>C:\Users\Toshiba\.dotnet\packs\Microsoft.AspNetCore.App.Ref\9.0.2\ref\net9.0\Microsoft.Extensions.Identity.Stores.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
