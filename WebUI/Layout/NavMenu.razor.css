@@ -1,3 +1,10 @@
+a {
+    all: unset;
+    cursor: pointer; /* Keeps it clickable */
+    display: block; /* Makes it behave like a list item */    
+}
+
+
 .navbar {
     display: flex;
     flex-direction: column;
