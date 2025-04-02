@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using WebUI.Components
+@inject IJSRuntime JS
 
 <div class="container">
     <div class="box left-box">
@@ -34,7 +35,8 @@
     </div>
     <div class="box right-box">
         <div class="hero">
-            <h1 class="title">مفروشات الهانم السورية</h1>
+            <h1 class="title animate__animated animate__fadeInDown">مفروشات الهانم السورية</h1>
+
             <p class="description">محل مفارش الأحلام يقدم تشكيلة واسعة من المفارش الفاخرة والملايات والبياضات بأنواعها المختلفة. يتميز بجودة المواد المستخدمة والتصاميم العصرية التي تلبي جميع الأذواق. إضافة إلى ذلك، يقدم المحل خدمة التوصيل المجاني داخل المدينة وخدمة تفصيل مفارش حسب الطلب.</p>
             <button class="button">اطلب الان</button>
         </div>
@@ -277,67 +279,24 @@
             </div>
         </div>
     </div>
-
     <div class="footer-bottom">
-        &copy; 2025 جميع الحقوق محفوظة | اسم موقعك
+        &copy; 2025 All rights reserved | HamzaBek
     </div>
 </footer>
 
 
 
 <script>
-    const swiper = new Swiper('.product-swiper', {
-        slidesPerView: 1,
-        spaceBetween: 20,
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-        },
-        breakpoints: {
-            640: {
-                slidesPerView: 2,
-            },
-            768: {
-                slidesPerView: 3,
-            },
-            1024: {
-                slidesPerView: 5,
-            },
-        }
-    });
     
-    new Swiper('.card-wrapper', {
-        autoplay: {
-            delay: 4000, // Time in milliseconds
-            disableOnInteraction: false,
-        },
-        loop: true,
-        spaceBetween: 30,
-
-        // If we need pagination
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-            dynamicBullets: true,
-        },
-
-        // Navigation arrows
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-        },
-
-        breakpoints : {
-            0: {
-                slidesPerView : 1
-            },
-            768: {
-                slidesPerView : 1
-            },
-            1024: {
-                slidesPerView : 1
-            }
-        }
-    });
-
 </script>
+
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initSwiperSliders");
+        }
+    }
+}
