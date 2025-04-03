@@ -1,0 +1,37 @@
+
+.hero {
+    text-align: right;
+}
+
+.title {
+    font-size: 4.5rem;
+    color: #333;
+    padding-bottom: 3rem;
+}
+
+.description {
+    font-size: 1.5rem;
+    color: #666;
+    max-width: 50rem;
+    word-wrap: break-word; /* Prevents text overflow */
+    text-align: right; /* Ensures the text stays aligned to the right */
+    margin-left: auto; /* Pushes the element towards the right */
+    padding-bottom: 4rem;
+}
+
+
+
+.button {
+    font-size: 1rem;
+    font-family: bolder;
+    padding: 10px 20px;
+    color: black;
+    background-color: var(--gold-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+    .button:hover {
+        background-color: #0056b3;
+    }

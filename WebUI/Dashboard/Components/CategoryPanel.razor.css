@@ -1,0 +1,100 @@
+﻿.Category h2 {
+    margin: 0 0 1rem;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.Category .form-group {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+    .Category .form-group label {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .Category .form-group input {
+        padding: 0.5rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        transition: border-color 0.3s;
+    }
+
+        .Category .form-group input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+.Category button {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+    .Category button:hover {
+        background-color: #0056b3;
+    }
+
+.input-container {
+    display: grid;
+    width: 100%;
+    max-width: 300px;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+    .input-container label {
+        font-size: 0.875rem; /* text-sm */
+        color: #9ca3af; /* light gray */
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .input-container input[type="file"] {
+        display: flex;
+        width: 100%;
+        padding: 6px;
+        font-size: 0.875rem;
+        color: #9ca3af;
+        background-color: #fff;
+        border: 1px solid #60a5fa; /* blue-300 */
+        border-radius: 6px;
+    }
+
+        .input-container input[type="file"]::file-selector-button {
+            background-color: #2563eb; /* blue-600 */
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+
+@media (max-width: 600px) {
+    .product-form-box {
+        padding: 20px;
+    }
+
+    .file-upload-label {
+        padding: 20px 30px;
+        border-radius: 30px;
+    }
+
+    #preview img {
+        width: 55px;
+        height: 55px;
+    }
+}

@@ -1,0 +1,38 @@
+﻿.stat-box {
+    flex: 1 1 calc(25% - 20px);
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+    .stat-box:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-box h3 {
+        margin: 0 0 10px;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .stat-box p {
+        margin: 0;
+        font-size: 22px;
+        font-weight: bold;
+        color: #222;
+    }
+
+@media screen and (max-width: 992px) {
+    .stat-box {
+        flex: 1 1 calc(50% - 20px);
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .stat-box {
+        flex: 1 1 100%;
+    }
+}

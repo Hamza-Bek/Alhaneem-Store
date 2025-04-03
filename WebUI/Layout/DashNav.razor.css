@@ -1,0 +1,144 @@
+﻿#sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #343a40;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    transform: translateX(0);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+}
+
+    /* Sidebar hidden state */
+    #sidebar.hidden {
+        transform: translateX(-100%);
+    }
+
+/* Header inside sidebar */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #222;
+    color: white;
+}
+
+.sidebar-brand {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/* Close button inside sidebar */
+.sidebar-close {
+    font-size: 18px;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: none; /* Only show on mobile */
+}
+
+/* Navigation links inside sidebar */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+    .sidebar-nav .nav-link {
+        padding: 0.75rem 1rem;
+        color: #d7d7d7;
+        text-decoration: none;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .sidebar-nav .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+/* Toggle Button (☰ open button) */
+.sidebar-toggle {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    font-size: 24px;
+    padding: 8px 12px;
+    background-color: #343a40;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 1100;
+}
+
+.has-submenu {
+    display: flex;
+    flex-direction: column;
+}
+
+.submenu-toggle {
+    background: none;
+    border: none;
+    color: #d7d7d7;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+    .submenu-toggle:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+    }
+
+.submenu {
+    display: none;
+    flex-direction: column;
+    padding-left: 1.5rem;
+}
+
+    .submenu .nav-link {
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+    }
+
+
+/* Responsive Logic */
+@media screen and (max-width: 640px) {
+    /* Sidebar starts hidden on small screens */
+    #sidebar.hidden {
+        transform: translateX(-100%);
+    }
+
+    .sidebar-toggle {
+        display: block;
+    }
+
+    .sidebar-close {
+        display: block;
+    }
+}
+
+/* Default state on larger screens: show sidebar and hide open button */
+@media screen and (min-width: 641px) {
+    .sidebar-toggle {
+        display: none;
+    }
+
+    .sidebar-close {
+        display: block;
+    }
+
+    #sidebar.hidden {
+        transform: translateX(-100%);
+    }
+}

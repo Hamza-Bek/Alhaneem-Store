@@ -1,0 +1,52 @@
+﻿<div id="sidebar">
+    <div class="sidebar-header">
+        <span class="sidebar-brand">Admin</span>
+        <button id="closeBtn" class="sidebar-close">✖</button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="/" class="nav-link">🏠 Home</a>
+        <a href="/counter" class="nav-link">➕ Counter</a>
+
+        <div class="nav-item has-submenu">
+            <button class="nav-link submenu-toggle">📊 Reports ▼</button>
+            <div class="submenu">
+                <a href="/reports/daily" class="nav-link">🗓️ Daily</a>
+                <a href="/reports/monthly" class="nav-link">📅 Monthly</a>
+            </div>
+        </div>
+
+        <a href="/weather" class="nav-link">🌦️ Weather</a>
+    </nav>
+</div>
+
+
+<!-- Open Button -->
+<button id="openBtn" class="sidebar-toggle">☰</button>
+
+
+<script>
+      const sidebar = document.getElementById("sidebar");
+        const openBtn = document.getElementById("openBtn");
+        const closeBtn = document.getElementById("closeBtn");
+        const toggles = document.querySelectorAll(".submenu-toggle");
+
+        openBtn?.addEventListener("click", () => {
+            sidebar.classList.remove("hidden");
+            openBtn.style.display = "none";
+        });
+
+        closeBtn?.addEventListener("click", () => {
+            sidebar.classList.add("hidden");
+            openBtn.style.display = "block";
+        });
+
+        toggles.forEach(toggle => {
+            toggle.addEventListener("click", () => {
+                const submenu = toggle.nextElementSibling;
+                submenu.style.display = submenu.style.display === "flex" ? "none" : "flex";
+            });
+        });
+</script>
+
+

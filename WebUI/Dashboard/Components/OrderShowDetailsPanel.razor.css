@@ -1,0 +1,74 @@
+﻿
+.order-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 20px;
+}
+
+    .order-card h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 6px;
+    }
+
+    .order-card ul {
+        list-style-type: disc;
+        padding-left: 20px;
+    }
+
+    .order-card p {
+        margin: 0.5rem 0;
+        font-size: 0.95rem;
+    }
+
+.invoice-button {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+    .invoice-button button {
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .invoice-button button:hover {
+            background-color: #1d4ed8;
+        }
+
+/* Status Badge */
+.status {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+}
+
+    .status.delivered {
+        background-color: #16a34a;
+    }
+
+    .status.pending {
+        background-color: #facc15;
+    }
+
+    .status.cancelled {
+        background-color: #dc2626;
+    }
+
+/* Responsive Tweak */
+@media (max-width: 600px) {
+    .invoice-button {
+        justify-content: center;
+    }
+}
