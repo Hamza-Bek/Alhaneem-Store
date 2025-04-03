@@ -235,3 +235,51 @@ code {
         opacity: 0;
     }
 }
+
+#sidebar {
+    width: 250px;
+    background-color: #343a40;
+    height: 100vh;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(0);
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+}
+
+    #sidebar.hidden {
+        transform: translateX(-100%);
+    }
+
+#openBtn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1100;
+    font-size: 24px;
+    padding: 5px 10px;
+    display: none;
+    background: #343a40;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#preview img {
+    width: 140px;
+    height: 140px;    
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media screen and (max-width: 768px) {
+    #openBtn {
+        display: block;
+    }
+}
+
