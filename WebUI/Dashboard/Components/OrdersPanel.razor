@@ -1,4 +1,6 @@
-﻿<h2>📦 Recent Orders</h2>
+﻿@inject IJSRuntime JS
+
+<h2>📦 Pending Orders</h2>
 <div class="orders-table">
     <div class="order-row header">
         <div>ID</div>
@@ -19,7 +21,9 @@
             <div class="action-menu">
                 ⋮
                 <div class="dropdown">
-                    <a href="#">View Order</a>
+                    <a href="/Admin/Order/Details">View Order</a>
+                    <button class="dropdown-action accept">Accept</button>
+                    <button class="dropdown-action reject">Reject</button>
                 </div>
             </div>
         </div>
@@ -35,7 +39,9 @@
             <div class="action-menu">
                 ⋮
                 <div class="dropdown">
-                    <a href="#">View Order</a>
+                    <a href="/Admin/Order/Details">View Order</a>
+                    <button class="dropdown-action accept">Accept</button>
+                    <button class="dropdown-action reject">Reject</button>
                 </div>
             </div>
         </div>
@@ -51,7 +57,9 @@
             <div class="action-menu">
                 ⋮
                 <div class="dropdown">
-                    <a href="#">View Order</a>
+                    <a href="/Admin/Order/Details">View Order</a>
+                    <button class="dropdown-action accept">Accept</button>
+                    <button class="dropdown-action reject">Reject</button>
                 </div>
             </div>
         </div>
@@ -67,7 +75,9 @@
             <div class="action-menu">
                 ⋮
                 <div class="dropdown">
-                    <a href="#">View Order</a>
+                    <a href="/Admin/Order/Details">View Order</a>
+                    <button class="dropdown-action accept">Accept</button>
+                    <button class="dropdown-action reject">Reject</button>
                 </div>
             </div>
         </div>
@@ -83,28 +93,21 @@
             <div class="action-menu">
                 ⋮
                 <div class="dropdown">
-                    <a href="#">View Order</a>
+                    <a href="/Admin/Order/Details">View Order</a>
+                    <button class="dropdown-action accept">Accept</button>
+                    <button class="dropdown-action reject">Reject</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-
-<script>      
-        const menus = document.querySelectorAll('.action-menu');
-
-        menus.forEach(menu => {
-            menu.addEventListener('click', function (e) {
-                e.stopPropagation(); // prevent click bubbling
-                // Close others first
-                menus.forEach(m => m.classList.remove('active'));
-                this.classList.toggle('active');
-            });
-        });
-
-        // Click outside closes any open menu
-        document.addEventListener('click', () => {
-            menus.forEach(m => m.classList.remove('active'));
-        });
-</script>
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("setupActionMenus");
+        }
+    }
+}
