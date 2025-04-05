@@ -1,22 +1,41 @@
-﻿<div id="sidebar">
+﻿@inject IJSRuntime JS
+
+<div id="sidebar">
     <div class="sidebar-header">
         <span class="sidebar-brand">Admin</span>
         <button id="closeBtn" class="sidebar-close">✖</button>
     </div>
 
     <nav class="sidebar-nav">
-        <a href="/" class="nav-link">🏠 Home</a>
-        <a href="/counter" class="nav-link">➕ Counter</a>
+        <a href="/Dash" class="nav-link">
+            <i class="fa-solid fa-house" style="color: #ffffff;"></i>
+            <span class="text">Home</span>
+        </a>
 
         <div class="nav-item has-submenu">
-            <button class="nav-link submenu-toggle">📊 Reports ▼</button>
+            <button class="nav-link submenu-toggle">
+                <i class="fa-solid fa-database" style="color: #ffffff;"></i>
+                <span class="text">Products</span>
+                <i class="icon fa-solid fa-chevron-down" style="color: #ffffff;"></i>
+            </button>
             <div class="submenu">
-                <a href="/reports/daily" class="nav-link">🗓️ Daily</a>
-                <a href="/reports/monthly" class="nav-link">📅 Monthly</a>
+                <a href="/Admin/Add/Product" class="nav-link">Add Product</a>
+                <a href="/Admin/Products" class="nav-link">All Products</a>
             </div>
         </div>
 
-        <a href="/weather" class="nav-link">🌦️ Weather</a>
+        <div class="nav-item has-submenu">
+            <button class="nav-link submenu-toggle">
+                <i class="fa-solid fa-cubes"></i>
+                <span class="text">Orders</span>
+                <i class="icon fa-solid fa-chevron-down" style="color: #ffffff;"></i>
+            </button>
+            <div class="submenu">
+                <a href="#" class="nav-link">Orders Delivering</a>
+                <a href="/Admin/Orders/Preparing" class="nav-link">Orders Preparing</a>
+                <a href="/Admin/Orders" class="nav-link">Recent Orders</a>
+            </div>
+        </div>        
     </nav>
 </div>
 
@@ -24,29 +43,14 @@
 <!-- Open Button -->
 <button id="openBtn" class="sidebar-toggle">☰</button>
 
-
-<script>
-      const sidebar = document.getElementById("sidebar");
-        const openBtn = document.getElementById("openBtn");
-        const closeBtn = document.getElementById("closeBtn");
-        const toggles = document.querySelectorAll(".submenu-toggle");
-
-        openBtn?.addEventListener("click", () => {
-            sidebar.classList.remove("hidden");
-            openBtn.style.display = "none";
-        });
-
-        closeBtn?.addEventListener("click", () => {
-            sidebar.classList.add("hidden");
-            openBtn.style.display = "block";
-        });
-
-        toggles.forEach(toggle => {
-            toggle.addEventListener("click", () => {
-                const submenu = toggle.nextElementSibling;
-                submenu.style.display = submenu.style.display === "flex" ? "none" : "flex";
-            });
-        });
-</script>
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("sidebarHandler.init");
+        }
+    }
+}
 
 
