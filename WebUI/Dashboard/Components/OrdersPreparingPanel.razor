@@ -1,0 +1,108 @@
+﻿@inject IJSRuntime JS
+
+<h2>📦 Orders To Prepare</h2>
+<div class="orders-table">
+    <div class="order-row header">
+        <div>ID</div>
+        <div>Customer</div>
+        <div>Total</div>
+        <div>Status</div>
+        <div>Date</div>
+        <div>Action</div>
+    </div>
+
+    <div class="order-row">
+        <div data-label="ID">#1001</div>
+        <div data-label="Customer">Ali Khan</div>
+        <div data-label="Total">$120.00</div>
+        <div data-label="Status" class="status pending">Pending</div>
+        <div data-label="Date">2025-04-01</div>
+        <div data-label="Action" class="action-cell">
+            <div class="action-menu">
+                ⋮
+                <div class="dropdown">
+                    <a href="/Admin/Order/Details">View Order</a>
+                    <button class="dropdown-action accept">Ready</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="order-row">
+        <div data-label="ID">#1002</div>
+        <div data-label="Customer">Emma Watson</div>
+        <div data-label="Total">$88.50</div>
+        <div data-label="Status" class="status shipped">Shipped</div>
+        <div data-label="Date">2025-04-01</div>
+        <div data-label="Action" class="action-cell">
+            <div class="action-menu">
+                ⋮
+                <div class="dropdown">
+                    <a href="/Admin/Order/Details">View Order</a>
+                    <button class="dropdown-action accept">Ready</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="order-row">
+        <div data-label="ID">#1003</div>
+        <div data-label="Customer">Mohamed Salah</div>
+        <div data-label="Total">$55.25</div>
+        <div data-label="Status" class="status delivered">Delivered</div>
+        <div data-label="Date">2025-03-31</div>
+        <div data-label="Action" class="action-cell">
+            <div class="action-menu">
+                ⋮
+                <div class="dropdown">
+                    <a href="/Admin/Order/Details">View Order</a>
+                    <button class="dropdown-action accept">Ready</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="order-row">
+        <div data-label="ID">#1004</div>
+        <div data-label="Customer">Sara Lee</div>
+        <div data-label="Total">$212.10</div>
+        <div data-label="Status" class="status canceled">Canceled</div>
+        <div data-label="Date">2025-03-30</div>
+        <div data-label="Action" class="action-cell">
+            <div class="action-menu">
+                ⋮
+                <div class="dropdown">
+                    <a href="/Admin/Order/Details">View Order</a>
+                    <button class="dropdown-action accept">Ready</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="order-row">
+        <div data-label="ID">#1005</div>
+        <div data-label="Customer">David N.</div>
+        <div data-label="Total">$67.00</div>
+        <div data-label="Status" class="status pending">Pending</div>
+        <div data-label="Date">2025-03-29</div>
+        <div data-label="Action" class="action-cell">
+            <div class="action-menu">
+                ⋮
+                <div class="dropdown">
+                    <a href="/Admin/Order/Details">View Order</a>
+                    <button class="dropdown-action accept">Ready</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("setupActionMenus");
+        }
+    }
+}
