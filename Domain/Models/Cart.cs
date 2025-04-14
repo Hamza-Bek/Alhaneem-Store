@@ -21,4 +21,5 @@ public class Cart : EntityBase
     
     //Guests
     public string? SessionId { get; set; }
+    
 }

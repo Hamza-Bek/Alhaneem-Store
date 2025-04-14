@@ -37,7 +37,10 @@ public class CartRepository : ICartRepository
             var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
             if (!string.IsNullOrEmpty(guestSessionId))
             {
-                return await _context.Carts.FirstOrDefaultAsync(c => c.SessionId.ToString() == guestSessionId);
+                return await _context.Carts
+                    .Include(i => i.Items)
+                    .ThenInclude(i => i.Product)
+                    .FirstOrDefaultAsync(c => c.SessionId.ToString() == guestSessionId);
             }
         }
 
@@ -149,7 +152,10 @@ public class CartRepository : ICartRepository
             await _context.SaveChangesAsync();
         }
 
-        return userCart;
+        return await _context.Carts
+            .Include(c => c.Items)
+            .ThenInclude(i => i.Product)
+            .FirstOrDefaultAsync(c => c.Id == userCart.Id);
     }
 
     public async Task<Cart> RemoveItemFromUserCartAsync(Guid cartItemId)
