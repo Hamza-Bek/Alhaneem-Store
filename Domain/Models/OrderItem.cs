@@ -7,8 +7,8 @@ public class OrderItem : EntityBase
     
     // Pricing Information
     public decimal Price { get; set; }  // Saves the price at checkout
-    public decimal TotalPrice => Price * Quantity;  // Auto-calculated total per item
-    
+    public decimal TotalPrice { get; set; }
+
     //Foreign Keys & Navigation Properties
     public Guid OrderId { get; set; }
     public virtual Order Order { get; set; }

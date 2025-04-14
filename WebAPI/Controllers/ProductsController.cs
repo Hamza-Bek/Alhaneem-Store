@@ -29,7 +29,7 @@ public class ProductsController : ControllerBase
             "Products retrieved successfully",
             true,
             response
-            ));
+        ));
     }
     
     [HttpGet("get")]
