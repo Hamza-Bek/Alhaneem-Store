@@ -8,6 +8,7 @@ public class Order : EntityBase
     public string OrderNumber { get; set; }
     public OrderStatus OrderStatus { get; set; }
     public DeliveryStatus DeliveryStatus { get; set; }
+    public DateTime CreatedAt { get; set; }
     
     //Order Information
     public decimal Subtotal { get; set; }
