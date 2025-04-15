@@ -2,13 +2,14 @@ namespace Domain.Models;
 
 public class Location : EntityBase
 {
+    public string Name { get; set; } = string.Empty;
     //Basic Information
-    public string? StreetAddress { get; set; }
+    public string StreetAddress { get; set; } = string.Empty;
     public string? City { get; set; }
-    public string? Building { get; set; }
-    public string? Floor { get; set; }
-    public string? Apartment { get; set; }
-    public string? Address { get; set; }
+    public string Building { get; set; }  = string.Empty;
+    public string Floor { get; set; }  = string.Empty;
+    public string Apartment { get; set; }  = string.Empty;
+    public string Address { get; set; }  = string.Empty;
     public string? Landmark { get; set; }
     
     //Geolocation
@@ -17,7 +18,7 @@ public class Location : EntityBase
     public string? Geolocation { get; set; }
     
     //Contact Information
-    public string PhoneNumber1 { get; set; }
+    public string PhoneNumber1 { get; set; }  = string.Empty;
     public string? PhoneNumber2 { get; set; }
     
     //Notes
