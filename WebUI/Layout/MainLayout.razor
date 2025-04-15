@@ -1,4 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿@using Application.Services
+@inherits LayoutComponentBase
+@inject IJSRuntime JS
+@inject CartService CartService
+
 <div class="page">
     <main>
         <div>
@@ -10,3 +14,30 @@
         </article>
     </main>
 </div>
+
+@code {
+
+    private bool _initialized;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            _initialized = true;
+
+            var sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                var newSessionId = Guid.NewGuid().ToString();
+                await CartService.CreateCartAsync(newSessionId);
+                await JS.InvokeVoidAsync("sessionHelper.setSessionId", newSessionId);
+                Console.WriteLine($"New session ID created: {newSessionId}");
+            }
+            else
+            {
+                Console.WriteLine($"Existing session ID: {sessionId}");
+            }
+        }
+    }
+    
+}
