@@ -99,6 +99,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthRepository, AuthRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<ILocationRepository, LocationRepository>();
         
         services.AddHttpContextAccessor();
 
