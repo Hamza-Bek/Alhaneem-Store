@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices.JavaScript;
 using Application.Interfaces;
 using Application.Options;
 using Domain.Enums;
@@ -21,34 +22,27 @@ public class OrderRepository : IOrderRepository
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<bool> SubmitOrderAsync()
+    public async Task<bool> SubmitOrderAsync(string sessionId)
     {
-        Cart userCart;
+        if (string.IsNullOrWhiteSpace(sessionId))
+            throw new ArgumentException("Session ID is required.");
+        
+        var hasLocation = await _context.Locations
+            .AnyAsync(l => l.SessionId == sessionId);
 
-        if (_userIdentity.Id != Guid.Empty)
-        {
-            userCart = await _context.Carts
-                .Include(c => c.Items)
-                .FirstOrDefaultAsync(c => c.UserId == _userIdentity.Id);
-        }
-        else
-        {
-            var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
-            if (string.IsNullOrEmpty(guestSessionId))
-                return false;
-
-            userCart = await _context.Carts
-                .Include(c => c.Items)
-                .FirstOrDefaultAsync(c => c.SessionId == guestSessionId);
-        }
+        if (!hasLocation)
+            return false;
+        
+        var userCart = await _context.Carts
+            .Include(c => c.Items)
+            .FirstOrDefaultAsync(c => c.SessionId == sessionId && !c.IsCheckedOut);
 
         if (userCart == null || userCart.Items == null || !userCart.Items.Any())
             return false;
-
+        
         var order = new Order
         {
             Id = Guid.NewGuid(),
-            UserId = _userIdentity.Id != Guid.Empty ? _userIdentity.Id : null,
             OrderNumber = GenerateOrderNumber(),
             OrderStatus = OrderStatus.Pending,
             DeliveryStatus = DeliveryStatus.Pending,
@@ -57,6 +51,8 @@ public class OrderRepository : IOrderRepository
             DiscountAmount = 0,
             Total = userCart.Subtotal + 20,
             PaymentStatus = PaymentStatus.On_delivery,
+            CreatedAt = DateTime.UtcNow,
+            SessionId = sessionId,
             Items = userCart.Items.Select(item => new OrderItem
             {
                 Id = Guid.NewGuid(),
@@ -68,39 +64,28 @@ public class OrderRepository : IOrderRepository
         };
 
         _context.Orders.Add(order);
-        
-        _context.CartItems.RemoveRange(userCart.Items);
+
+        userCart.IsCheckedOut = true;
         userCart.Subtotal = 0;
         userCart.Total = 0;
+        _context.CartItems.RemoveRange(userCart.Items);
+        _context.Carts.Update(userCart);
 
         await _context.SaveChangesAsync();
-
         return true;
     }
-
-
-    public async Task<Order> GetLastOrderAsync()
+    
+    public async Task<Order> GetLastOrderAsync(string sessionId)
     {
-        if (_userIdentity.Id != Guid.Empty)
-        {
-            return await _context.Orders
-                .Where(o => o.UserId == _userIdentity.Id)
-                .OrderByDescending(o => o.CreatedAt)
-                .FirstOrDefaultAsync();
-        }
-        else
-        {
-            var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
+        if (string.IsNullOrWhiteSpace(sessionId))
+            throw new ArgumentException("Session ID is required.");
 
-            if (!string.IsNullOrEmpty(guestSessionId))
-            {
-                return await _context.Orders
-                    .Where(o => o.SessionId.ToString() == guestSessionId)
-                    .OrderByDescending(o => o.CreatedAt)
-                    .FirstOrDefaultAsync();
-            }
-        }
-        return null;
+        return await _context.Orders
+            .Where(o => o.SessionId == sessionId)
+            .OrderByDescending(o => o.CreatedAt)
+            .Include(o => o.Items)
+            .ThenInclude(i => i.Product)
+            .FirstOrDefaultAsync();
     }
 
     public Task<Order> GetOrderByIdAsync(int orderId)
