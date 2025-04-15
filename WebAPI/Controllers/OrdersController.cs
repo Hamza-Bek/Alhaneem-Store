@@ -17,13 +17,25 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> SubmitOrder()
+    public async Task<IActionResult> SubmitOrder(string sessionId)
     {
-        var response = await _orderRepository.SubmitOrderAsync();
+        var response = await _orderRepository.SubmitOrderAsync(sessionId);
 
         return Ok(new ApiResponse<IEnumerable<Order>>(
             "order made successfully",
             true
+        ));
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> GetLastOrder(string sessionId)
+    {
+        var response = await _orderRepository.GetLastOrderAsync(sessionId);
+
+        return Ok(new ApiResponse<Order>(
+            "orders retrieved successfully",
+            true,
+            response
         ));
     }
 }
