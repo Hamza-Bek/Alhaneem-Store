@@ -43,31 +43,30 @@ public class LocationRepository : ILocationRepository
         return null;
     }
 
-    public async Task<Location> AddLocationAsync(Location location)
+    public async Task<Location> AddLocationAsync(Location location, string sessionId)
     {
-        Location newLocation;
-        
-        if (_userIdentity.Id != Guid.Empty)
+        if (string.IsNullOrWhiteSpace(sessionId))
+            throw new ArgumentException("Session ID is required.");
+
+        var newLocation = new Location
         {
-            newLocation = CreateNewLocation(location, _userIdentity.Id, null);
-        }
-        else
-        {
-            var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
-            if (!string.IsNullOrEmpty(guestSessionId))
-            {
-                newLocation = CreateNewLocation(location, null, guestSessionId);
-            }
-            else
-            {
-                return null;
-            }
-        }
-        
+            Id = Guid.NewGuid(),
+            SessionId = sessionId,
+            Name = location.Name,
+            Address = location.Address,
+            PhoneNumber1 = location.PhoneNumber1,
+            PhoneNumber2 = location.PhoneNumber2,
+            Latitude = location.Latitude,
+            Longitude = location.Longitude,
+            //CreatedAt = DateTime.UtcNow
+        };
+
         await _context.Locations.AddAsync(newLocation);
         await _context.SaveChangesAsync();
+
         return newLocation;
     }
+
 
     public async Task<Location> UpdateLocationAsync(Location location)
     {
