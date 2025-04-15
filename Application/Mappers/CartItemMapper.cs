@@ -11,9 +11,6 @@ public static class CartItemMapper
         return new CartItemDto
         {
             Quantity =  cart.Quantity,
-            Price = cart.Price,
-            TotalPrice = cart.TotalPrice,
-            CartId = cart.CartId,
             ProductId = cart.ProductId
         };
     }
@@ -23,9 +20,6 @@ public static class CartItemMapper
         return new CartItem
         {
             Quantity =  cart.Quantity,
-            Price = cart.Price,
-            TotalPrice = cart.TotalPrice,
-            CartId = cart.CartId,
             ProductId = cart.ProductId
         };
     }
