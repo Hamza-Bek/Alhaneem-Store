@@ -3,6 +3,7 @@ using Application.Options;
 using Domain.Models;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
@@ -20,137 +21,94 @@ public class CartRepository : ICartRepository
         _context = context;
     }
 
-    public async Task<Cart> GetUserCartByIdAsync()
+    public async Task<Cart> GetUserCartByIdAsync(string sessionId)
     {
-        if (_userIdentity.Id != Guid.Empty)
-        {
-            var cart = await _context.Carts
-                .Include(i => i.Items)
-                .ThenInclude(i => i.Product)
-                .Include(i => i.User)
-                .FirstOrDefaultAsync(c => c.UserId == _userIdentity.Id);
+        if(string.IsNullOrEmpty(sessionId))
+            throw new ArgumentException("Session ID must be provided.");
+        
+        var cart = await _context.Carts
+            .Include(c => c.Items)
+            .ThenInclude(i => i.Product)
+            .FirstOrDefaultAsync(c => c.SessionId == sessionId);
 
-            return cart;
-        }
-        else
-        {
-            var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
-            if (!string.IsNullOrEmpty(guestSessionId))
-            {
-                return await _context.Carts
-                    .Include(i => i.Items)
-                    .ThenInclude(i => i.Product)
-                    .FirstOrDefaultAsync(c => c.SessionId.ToString() == guestSessionId);
-            }
-        }
-
-        return null;
+        return cart;
     }
-    public async Task<Cart> CreateUserCartAsync(string? guestSessionId = null)
+    
+    public async Task<Cart> CreateUserCartAsync(string sessionId)
     {
-        if (_userIdentity.Id != Guid.Empty)
+        if(string.IsNullOrEmpty(sessionId))
+            throw new ArgumentException("Session ID must be provided.");
+        
+        var existingCart = await _context.Carts
+            .FirstOrDefaultAsync(c => c.SessionId.ToString() == sessionId);
+        
+        if (existingCart != null)
         {
-            var cart = new Cart()
-            {
-                Id = Guid.NewGuid(),
-                UserId = _userIdentity.Id,
-                CreatedAt = DateTime.UtcNow,
-                Subtotal = 0,
-                ShippingFee = 0,
-                DiscountAmount = 0,
-                Total = 0,
-                IsCheckedOut = false,
-            };
-            
-            await _context.Carts.AddAsync(cart);
-            await _context.SaveChangesAsync();
-            return cart;
-        }
-        else
-        {
-            guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
-            
-            if (string.IsNullOrEmpty(guestSessionId))
-            {
-                // Create a new guest session ID
-                guestSessionId = Guid.NewGuid().ToString();
-                _httpContextAccessor.HttpContext?.Response.Cookies.Append("GuestSessionId", guestSessionId);
-            }
-            
-            var existingCart = await _context.Carts.FirstOrDefaultAsync(c => c.SessionId == guestSessionId);
-            if (existingCart != null)
-            {
-                return existingCart;
-            }
-            
-            var cart = new Cart()
-            {
-                Id = Guid.NewGuid(),
-                SessionId = guestSessionId,
-                UserId = null,
-                CreatedAt = DateTime.UtcNow,
-                Subtotal = 0,
-                ShippingFee = 0,
-                DiscountAmount = 0,
-                Total = 0,
-                IsCheckedOut = false,
-            };
-
-            await _context.Carts.AddAsync(cart);
-            await _context.SaveChangesAsync();
-            return cart;
+            return existingCart;
         }
         
-        return null;
+        var cart = new Cart
+        {
+            Id = Guid.NewGuid(),
+            SessionId = sessionId,
+            CreatedAt = DateTime.UtcNow,
+            Subtotal = 0,
+            ShippingFee = 0,
+            DiscountAmount = 0,
+            Total = 0,
+            IsCheckedOut = false,
+        };
+        
+        await _context.Carts.AddAsync(cart);
+        await _context.SaveChangesAsync();
+
+        return cart;
     }
 
-    public async Task<Cart> AddItemToUserCartAsync(CartItem item)
+    public async Task<Cart> AddItemToUserCartAsync(CartItem item, string sessionId)
     {
-        Cart userCart;
-        if (_userIdentity.Id != Guid.Empty)
+        if(string.IsNullOrEmpty(sessionId))
+            throw new ArgumentException("Session ID must be provided.");
+        
+        var userCart = await _context.Carts
+            .Include(c => c.Items)
+            .FirstOrDefaultAsync(c => c.SessionId == sessionId);
+        
+        
+
+        var product = await _context.Products.FirstOrDefaultAsync(i => i.Id == item.ProductId);
+        
+        var productExists = await _context.CartItems.FirstOrDefaultAsync(p => p.ProductId == item.ProductId && p.CartId == userCart.Id);
+        if (productExists != null)
         {
-            userCart = await _context.Carts.FirstOrDefaultAsync(i => i.UserId == _userIdentity.Id)
-                       ?? await CreateUserCartAsync();
-            
-            var cartItem = new CartItem()
-            {
-                Id = Guid.NewGuid(),
-                CartId = userCart.Id,
-                ProductId = item.ProductId,
-                Quantity = item.Quantity,
-                Price = item.Price,
-                TotalPrice = item.Price * item.Quantity
-            };
-            
-            await _context.CartItems.AddAsync(cartItem);
-            await _context.SaveChangesAsync();
+            productExists.Quantity += item.Quantity;
+            productExists.TotalPrice = productExists.Price * productExists.Quantity;
+            _context.CartItems.Update(productExists);
         }
         else
         {
-            var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
-
-            if (string.IsNullOrEmpty(guestSessionId))
-            {
-                guestSessionId = Guid.NewGuid().ToString();
-                _httpContextAccessor.HttpContext?.Response.Cookies.Append("GuestSessionId", guestSessionId);
-            }
-            
-            userCart = await _context.Carts.FirstOrDefaultAsync(i => i.SessionId == guestSessionId)
-                       ?? await CreateUserCartAsync(guestSessionId);
-            
             var cartItem = new CartItem()
             {
                 Id = Guid.NewGuid(),
                 CartId = userCart.Id,
                 ProductId = item.ProductId,
                 Quantity = item.Quantity,
-                Price = item.Price,
-                TotalPrice = item.Price * item.Quantity
+                Price = product.Price,
+                TotalPrice = product.Price * item.Quantity
             };
-                
+            
             await _context.CartItems.AddAsync(cartItem);
-            await _context.SaveChangesAsync();
         }
+        
+        userCart.Subtotal = userCart.Items.Sum(i => 
+            i.ProductId == item.ProductId
+                ? (productExists?.TotalPrice ?? (product.Price * item.Quantity))
+                : i.TotalPrice);
+        
+        userCart.Total = userCart.Subtotal + userCart.ShippingFee;
+        
+        _context.Carts.Update(userCart);
+        await _context.SaveChangesAsync();
 
         return await _context.Carts
             .Include(c => c.Items)
@@ -158,39 +116,52 @@ public class CartRepository : ICartRepository
             .FirstOrDefaultAsync(c => c.Id == userCart.Id);
     }
 
-    public async Task<Cart> RemoveItemFromUserCartAsync(Guid cartItemId)
+    public async Task<Cart> RemoveItemFromUserCartAsync(string sessionId, Guid productId)
     {
-        Cart userCart;
-        if(_userIdentity.Id != Guid.Empty)
+        if (string.IsNullOrWhiteSpace(sessionId))
+            throw new ArgumentException("Session ID is required.");
+
+        var cart = await _context.Carts
+            .Include(c => c.Items)
+            .FirstOrDefaultAsync(c => c.SessionId == sessionId && !c.IsCheckedOut);
+
+        if (cart == null)
+            throw new InvalidOperationException("Cart not found.");
+
+        var cartItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+        if (cartItem == null)
+            throw new InvalidOperationException("Cart item not found for given product.");
+
+        if (cartItem.Quantity > 1)
         {
-            userCart = await _context.Carts
-                .Include(c => c.Items)
-                .FirstOrDefaultAsync(c => c.UserId == _userIdentity.Id);
+            cartItem.Quantity -= 1;
+            cartItem.TotalPrice = cartItem.Quantity * cartItem.Price;
+            _context.CartItems.Update(cartItem);
         }
         else
         {
-            var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
-
-            if (string.IsNullOrEmpty(guestSessionId))
-                return null; // No guest cart exists
-
-            userCart = await _context.Carts
-                .Include(c => c.Items)
-                .FirstOrDefaultAsync(c => c.SessionId == guestSessionId);
+            _context.CartItems.Remove(cartItem);
         }
-        
-        if (userCart is null)
-            return null; 
 
-        var cartItem = userCart.Items.FirstOrDefault(i => i.Id == cartItemId);
-        if (cartItem is null)
-            return null; 
-
-        _context.CartItems.Remove(cartItem);
         await _context.SaveChangesAsync();
 
-        return userCart; 
+        // Recalculate totals
+        var remainingItems = await _context.CartItems
+            .Where(i => i.CartId == cart.Id)
+            .ToListAsync();
+
+        cart.Subtotal = remainingItems.Sum(i => i.TotalPrice);
+        cart.Total = cart.Subtotal + cart.ShippingFee - cart.DiscountAmount;
+
+        _context.Carts.Update(cart);
+        await _context.SaveChangesAsync();
+
+        return await _context.Carts
+            .Include(c => c.Items)
+            .ThenInclude(i => i.Product)
+            .FirstOrDefaultAsync(c => c.Id == cart.Id);
     }
+
 
     public async Task<bool> ClearUserCartAsync()
     {

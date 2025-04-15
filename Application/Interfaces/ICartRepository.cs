@@ -4,9 +4,9 @@ namespace Application.Interfaces;
 
 public interface ICartRepository 
 {
-    Task<Cart> GetUserCartByIdAsync();
-    Task<Cart> CreateUserCartAsync(string? guestSessionId = null);
-    Task<Cart> AddItemToUserCartAsync(CartItem item);
-    Task<Cart> RemoveItemFromUserCartAsync(Guid cartItemId);
+    Task<Cart> GetUserCartByIdAsync(string sessionId);
+    Task<Cart> CreateUserCartAsync(string sessionId);
+    Task<Cart> AddItemToUserCartAsync(CartItem item, string sessionId);
+    Task<Cart> RemoveItemFromUserCartAsync(string sessionId, Guid productId);
     Task<bool> ClearUserCartAsync();
 }
