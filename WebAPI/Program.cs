@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using WebAPI.Extensions;
 
@@ -5,7 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplicationServices();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
+
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -45,12 +53,24 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("WebUI", policy =>
+    {
+        policy.WithOrigins("https://localhost:7077")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .WithHeaders(HeaderNames.ContentType);
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseCors("WebUI");
 }
 
 app.UseSwagger();
