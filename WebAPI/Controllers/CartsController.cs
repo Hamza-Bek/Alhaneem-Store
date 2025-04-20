@@ -18,7 +18,7 @@ public class CartsController : Controller
       _cartRepository = cartRepository;
    }
    
-   [HttpPost("create")]
+   [HttpPost("cart")]
    public async Task<IActionResult> CreateCart([FromBody] string sessionId)
    {
       var response = await _cartRepository.CreateUserCartAsync(sessionId);
@@ -41,10 +41,10 @@ public class CartsController : Controller
       ));
    }
    
-   [HttpPost("add/item")]
-   public async Task<IActionResult> AddItemToCart(CartItemDto item, string sessionId)
+   [HttpPost("item")]
+   public async Task<IActionResult> AddItemToCart(Guid productId, int quantity, string sessionId)
    {
-      var response = await _cartRepository.AddItemToUserCartAsync(item.ToModel(), sessionId);
+      var response = await _cartRepository.AddItemToUserCartAsync(productId, quantity, sessionId);
       
       return Ok(new ApiResponse<Cart>(
          "Item added to cart successfully",
@@ -54,9 +54,9 @@ public class CartsController : Controller
    }
    
    [HttpDelete("remove/item")]
-   public async Task<IActionResult> RemoveItemFromCart(string sessionId,Guid productId)
+   public async Task<IActionResult> RemoveItemFromCart(Guid productId, string sessionId)
    {
-      var response = await _cartRepository.RemoveItemFromUserCartAsync(sessionId, productId);
+      var response = await _cartRepository.RemoveItemFromUserCartAsync(productId, sessionId);
       
       return Ok(new ApiResponse<Cart>(
          "Item removed from cart successfully",
