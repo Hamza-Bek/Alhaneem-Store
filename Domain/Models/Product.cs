@@ -22,6 +22,6 @@ public class Product : EntityBase
     public StockStatus StockStatus { get; set; }
     
     //Foreign Keys & Navigation Properties
-    public Guid? CategoryId { get; set; }
-    public virtual Category Category { get; set; }
+    public string CategoryId { get; set; } = string.Empty;
+    public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
 }
