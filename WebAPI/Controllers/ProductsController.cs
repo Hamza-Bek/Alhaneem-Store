@@ -25,7 +25,7 @@ public class ProductsController : ControllerBase
     {
         var response = await _productRepository.GetProductsAsync();
 
-        return Ok(new ApiResponse<IEnumerable<Product>>(
+        return Ok(new ApiResponse<IEnumerable<PublicProductDto>>(
             "Products retrieved successfully",
             true,
             response
@@ -42,41 +42,5 @@ public class ProductsController : ControllerBase
             true,
             response
             ));
-    }
-    
-    [HttpPost("create")]
-    public async Task<IActionResult> CreateProductAsync(ProductDto product)
-    {
-        var response = await _productRepository.CreateProductAsync(product.ToModel());
-
-        return Ok(new ApiResponse<Product>(
-            "Product created successfully",
-            true,
-            response
-            ));
-    }
-    
-    [HttpPut("update")]
-    public async Task<IActionResult> UpdateProductAsync(Guid id, ProductDto product)
-    {
-        var response = await _productRepository.UpdateProductAsync(id, product.ToModel());
-
-        return Ok(new ApiResponse<Product>(
-            "Product updated successfully",
-            true,
-            response
-            ));
-    }
-
-    [HttpDelete("delete")]
-    public async Task<IActionResult> DeleteProductAsync(Guid id)
-    {
-        var response = await _productRepository.DeleteProductAsync(id);
-
-        return Ok(new ApiResponse<bool>(
-            "Product deleted successfully",
-            true,
-            response
-        ));
     }
 }
