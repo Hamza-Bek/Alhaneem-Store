@@ -7,7 +7,24 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+
+builder.Services.AddHttpClient<ICartService, CartService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7201");
+});
+
+builder.Services.AddHttpClient<ILocationService, LocationService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7201");
+});
+
+builder.Services.AddHttpClient<IAdminService, AdminService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7201");
+});
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7201") });
 
