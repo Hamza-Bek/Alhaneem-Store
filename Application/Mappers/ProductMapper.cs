@@ -5,10 +5,23 @@ namespace Application.Mappers;
 
 public static class ProductMapper
 {
+    public static PublicProductDto ToPublicDto(this Product product)
+    {
+        return new PublicProductDto
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            StockStatus = product.StockStatus
+        };
+    }
+    
     public static ProductDto ToDto(this Product product)
     {
         return new ProductDto
         {
+            Id = product.Id,
             Name = product.Name,
             Description = product.Description,
             CategoryId = product.CategoryId,
@@ -23,6 +36,7 @@ public static class ProductMapper
     {
         return new Product
         {
+            Id = product.Id,
             Name = product.Name,
             Description = product.Description,
             CategoryId = product.CategoryId,
