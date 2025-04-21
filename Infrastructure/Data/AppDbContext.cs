@@ -20,20 +20,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUser , IdentityRole<Gui
     public DbSet<Cart> Carts { get; set; }
     public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Category> Categories { get; set; }
-    
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<ProductImage> ProductImages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-            
-        // One-to-One: ApplicationUser ↔ Location
-        builder.Entity<ApplicationUser>()
-            .HasOne(u => u.Location)
-            .WithOne(l => l.User)
-            .HasForeignKey<ApplicationUser>(u => u.LocationId)
-            .OnDelete(DeleteBehavior.SetNull);
-
+        
         // One-to-Many: ApplicationUser ↔ Orders
         builder.Entity<Order>()
             .HasOne(o => o.User)
@@ -76,11 +69,5 @@ public class AppDbContext : IdentityDbContext<ApplicationUser , IdentityRole<Gui
             .HasForeignKey<Cart>(c => c.UserId)
             .OnDelete(DeleteBehavior.Cascade);
         
-        // One-to-Many: Product ↔ Category
-        builder.Entity<Product>()
-            .HasOne(p => p.Category)
-            .WithMany(c => c.Products)
-            .HasForeignKey(p => p.CategoryId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }
