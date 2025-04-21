@@ -1,49 +1,60 @@
-﻿@inject IJSRuntime JS
+﻿@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+@using Application.Dtos.Product
+@using Application.Services
+@using Domain.Enums
+@inject IJSRuntime JS
+@inject IAdminService AdminService
 
-<h2>Add New Product</h2>
-<form>
+<h2>@(IsEditMode ? "Edit Product" : "Add New Product")</h2>
+
+<EditForm Model="ProductModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
     <div class="form-group">
         <label for="name">Product Name</label>
-        <input type="text" id="name" placeholder="Enter product name" required />
+        <InputText id="name" @bind-Value="ProductModel.Name" class="form-control" placeholder="Enter product name" required />
     </div>
 
     <div class="form-group">
         <label for="desc">Description</label>
-        <textarea id="desc" rows="3" placeholder="Product description (optional)"></textarea>
+        <InputTextArea id="desc" @bind-Value="ProductModel.Description" class="form-control" rows="3" placeholder="Product description (optional)" />
     </div>
 
     <div class="form-group">
         <label for="category">Category ID</label>
-        <input type="text" id="category" placeholder="Enter category GUID (optional)" />
+        <InputText id="category" @bind-Value="ProductModel.CategoryId" class="form-control" placeholder="Enter category GUID (optional)" />
     </div>
 
     <div class="form-group">
         <label for="price">Price ($)</label>
-        <input type="number" id="price" step="0.01" placeholder="0.00" required />
+        <InputNumber id="price" @bind-Value="ProductModel.Price" class="form-control" step="0.01" placeholder="0.00" required />
     </div>
 
     <div class="form-group">
         <label for="cost">Cost ($)</label>
-        <input type="number" id="cost" step="0.01" placeholder="0.00" />
+        <InputNumber id="cost" @bind-Value="ProductModel.Cost" class="form-control" step="0.01" placeholder="0.00" />
     </div>
 
     <div class="form-group">
         <label for="stock">Stock Quantity</label>
-        <input type="number" id="stock" placeholder="Enter available stock" required />
+        <InputNumber id="stock" @bind-Value="ProductModel.Stock" class="form-control" placeholder="Enter available stock" required />
     </div>
 
     <div class="form-group">
         <label for="stockStatus">Stock Status</label>
-        <select id="stockStatus" required>
+        <InputSelect id="stockStatus" @bind-Value="ProductModel.StockStatus" class="form-control" required>
             <option value="">-- Select --</option>
-            <option value="0">In Stock</option>
-            <option value="1">Out of Stock</option>
-            <option value="2">Backordered</option>
-        </select>
+            @foreach (var status in StockStatusOptions)
+            {
+                <option value="@status">@GetDisplayName(status)</option>
+            }
+        </InputSelect>
     </div>
 
     <div class="file-upload-form">
-        <label class="file-upload-label" for="file">
+        <label class="file-upload-label" for="fileInput">
             <div class="file-upload-design">
                 <svg height="1em" viewBox="0 0 640 512">
                     <path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39V392c0 13.3 10.7 24 24 24s24-10.7 24-24V257.9l39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z" />
@@ -52,62 +63,143 @@
                 <p>or</p>
                 <span class="browse-button">Browse file</span>
             </div>
-            <input multiple type="file" id="file" accept="image/*" />
+            <!-- Hidden InputFile that matches the design -->
+            <InputFile OnChange="HandleFiles" id="fileInput" multiple accept="image/*" style="display:none;" />
         </label>
     </div>
 
-    <div id="preview" class="preview-container"></div>
+    <div id="preview" class="preview-container">
+        @foreach (var preview in imagePreviews)
+        {
+            <img src="@preview" width="100" height="100" style="margin:5px;" />
+        }
+    </div>
 
-    <button type="submit">Add Product</button>
-</form>
+    <button @onclick="UploadImages" class="upload-button">Upload Images</button>
+</EditForm>
 
 <script>
-     window.selectedImages = []; // Keep all images
+    window.selectedImages = []; 
 
     window.setupImageSelector = function () {
-      const fileInput = document.getElementById("file");
-      const preview = document.getElementById("preview");
+        const fileInput = document.getElementById("file");
+        const preview = document.getElementById("preview");
 
-      if (!fileInput || !preview) return;
-      if (fileInput.dataset.initialized) return;
-      fileInput.dataset.initialized = "true";
+        if (!fileInput || !preview) return;
+        if (fileInput.dataset.initialized) return;
+        fileInput.dataset.initialized = "true";
 
-      fileInput.addEventListener("change", () => {
-        const files = Array.from(fileInput.files);
+        fileInput.addEventListener("change", () => {
+            const files = Array.from(fileInput.files);
 
-        files.forEach(file => {
-          if (file && file.type.startsWith("image/")) {
-            // Optional: prevent duplicate files (by name or size)
-            const alreadyExists = window.selectedImages.some(
-              f => f.name === file.name && f.size === file.size
-            );
-            if (alreadyExists) return;
+            files.forEach(file => {
+                if (file && file.type.startsWith("image/")) {
+                    const alreadyExists = window.selectedImages.some(
+                        f => f.name === file.name && f.size === file.size
+                    );
+                    if (alreadyExists) return;
 
-            window.selectedImages.push(file);
+                    window.selectedImages.push(file);
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-              const img = document.createElement("img");
-              img.src = e.target.result;
-              preview.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-          }
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        preview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            fileInput.value = '';
         });
-
-        // Reset the input so the same file can be re-added later if needed
-        fileInput.value = '';
-      });
     };
 </script>
 
-
 @code {
+    private ProductDto ProductModel { get; set; } = new ProductDto();
+    private IEnumerable<StockStatus> StockStatusOptions => Enum.GetValues(typeof(StockStatus)).Cast<StockStatus>();
+    private bool IsEditMode { get; set; } = false;
+    private IReadOnlyList<IBrowserFile>? selectedFiles;
+    private List<string> imagePreviews = new();
+    private Guid productId = Guid.NewGuid();
+    private List<(string Name, string ContentType, Stream Content)> uploadedStreams = new();
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await JS.InvokeVoidAsync("setupImageSelector");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (!IsEditMode)
+        {
+            ProductModel.Id = productId;
+            var addedProduct = await AdminService.CreateProductAsync(ProductModel);
+            if (addedProduct != null)
+            {
+                // Optionally, you can show a success message
+                Console.WriteLine("Product added successfully!");
+                // Reset form
+                imagePreviews.Clear();
+                selectedFiles = null;
+                uploadedStreams.Clear();
+                StateHasChanged();
+                ProductModel = new ProductDto();
+            }
+        }
+        else
+        {
+            // TODO: Handle Edit Mode later when needed
+        }
+    }
+    
+    
+    private string GetDisplayName(Enum enumValue)
+    {
+        return enumValue.GetType()
+            .GetMember(enumValue.ToString())
+            .FirstOrDefault()?
+            .GetCustomAttribute<DisplayAttribute>()?
+            .Name ?? enumValue.ToString();
+    }
+    
+    private async void HandleFiles(InputFileChangeEventArgs e)
+    {
+        selectedFiles = e.GetMultipleFiles();
+        imagePreviews.Clear();
+        uploadedStreams.Clear();
+
+        foreach (var file in selectedFiles)
+        {
+            using var stream = file.OpenReadStream(10_000_000); // Max 10MB
+            var buffer = new byte[file.Size];
+            await stream.ReadAsync(buffer, 0, (int)file.Size); // ✅ async read
+
+            var base64 = Convert.ToBase64String(buffer);
+            imagePreviews.Add($"data:{file.ContentType};base64,{base64}");
+        }
+
+        StateHasChanged(); // force UI refresh if needed
+    }
+
+    
+    private async Task UploadImages()
+    {
+        if (selectedFiles == null || selectedFiles.Count == 0)
+            return;
+
+        var success = await AdminService.UploadProductImagesAsync(productId, selectedFiles);
+        if (success)
+        {
+            // 🎉 All good
+        }
+        else
+        {
+            // ⚠️ Show error
         }
     }
 }
