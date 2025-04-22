@@ -13,7 +13,8 @@ public static class ProductMapper
             Name = product.Name,
             Description = product.Description,
             Price = product.Price,
-            StockStatus = product.StockStatus
+            StockStatus = product.StockStatus,
+            ImageUrls = product.Images?.Select(i => i.ImageUrl).ToList() ?? new()
         };
     }
     
