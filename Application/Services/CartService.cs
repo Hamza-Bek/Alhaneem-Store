@@ -2,7 +2,7 @@ using System.Net.Http.Json;
 
 namespace Application.Services;
 
-public class CartService
+public class CartService : ICartService
 {
     private readonly HttpClient _httpClient;
 
