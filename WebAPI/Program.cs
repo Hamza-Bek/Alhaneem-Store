@@ -73,6 +73,8 @@ if (app.Environment.IsDevelopment())
     app.UseCors("WebUI");
 }
 
+app.UseStaticFiles();
+
 app.UseSwagger();
 
 app.UseSwaggerUI();
