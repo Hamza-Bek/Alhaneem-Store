@@ -43,4 +43,28 @@ public class ProductsController : ControllerBase
             response
             ));
     }
+    
+    [HttpGet("get/newest")]
+    public async Task<IActionResult> GetNewestProductsAsync()
+    {
+        var response = await _productRepository.GetNewestProductsAsync();
+
+        return Ok(new ApiResponse<IEnumerable<PublicProductDto>>(
+            "Newest products retrieved successfully",
+            true,
+            response
+        ));
+    }
+    
+    [HttpGet("get/lowest/price")]
+    public async Task<IActionResult> GetLowestPriceProductsAsync()
+    {
+        var response = await _productRepository.GetLowestPriceProductsAsync();
+
+        return Ok(new ApiResponse<IEnumerable<PublicProductDto>>(
+            "Lowest price products retrieved successfully",
+            true,
+            response
+        ));
+    }
 }

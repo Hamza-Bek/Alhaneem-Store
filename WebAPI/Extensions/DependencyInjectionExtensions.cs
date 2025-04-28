@@ -59,6 +59,9 @@ public static class DependencyInjectionExtensions
         var refreshTokenSettings = new RefreshTokenSettings();
         configuration.GetSection("RefreshToken").Bind(refreshTokenSettings);
         services.AddScoped(_ => refreshTokenSettings);
+        
+        services.Configure<ImageStorageSettings>(
+            configuration.GetSection("Storage"));
 
         var key = Encoding.UTF8.GetBytes(jwtSettings.Secret ?? throw new InvalidOperationException("JWT Secret is missing"));
         
@@ -100,7 +103,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IAuthRepository, AuthRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<ILocationRepository, LocationRepository>();
-        
+        services.AddScoped<IAdminRepository, AdminRepository>();
+        services.AddScoped<IAdminImageUploadRepository, AdminImageUploadRepository>();
         services.AddHttpContextAccessor();
 
         

@@ -65,46 +65,53 @@ public class CartRepository : ICartRepository
         return cart;
     }
 
-    public async Task<Cart> AddItemToUserCartAsync(CartItem item, string sessionId)
+    public async Task<Cart> AddItemToUserCartAsync(Guid productId, int quantity, string sessionId)
     {
-        if(string.IsNullOrEmpty(sessionId))
-            throw new ArgumentException("Session ID must be provided.");
-        
+        if (string.IsNullOrWhiteSpace(sessionId))
+            throw new ArgumentException("Session ID must be provided.", nameof(sessionId));
+
+        if (quantity <= 0)
+            throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
+
         var userCart = await _context.Carts
             .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.SessionId == sessionId);
         
-        
+        if (userCart == null)
+            throw new InvalidOperationException("Cart not found for the given session.");
 
-        var product = await _context.Products.FirstOrDefaultAsync(i => i.Id == item.ProductId);
+        var product = await _context.Products.FirstOrDefaultAsync(i => i.Id == productId);
+        if (product == null)
+            throw new InvalidOperationException("Product not found.");
         
-        var productExists = await _context.CartItems.FirstOrDefaultAsync(p => p.ProductId == item.ProductId && p.CartId == userCart.Id);
-        if (productExists != null)
+        var existingCartItem = userCart.Items.FirstOrDefault(i => i.ProductId == productId);
+
+        if (existingCartItem != null)
         {
-            productExists.Quantity += item.Quantity;
-            productExists.TotalPrice = productExists.Price * productExists.Quantity;
-            _context.CartItems.Update(productExists);
+            existingCartItem.Quantity += quantity;
+            existingCartItem.TotalPrice = existingCartItem.Price * existingCartItem.Quantity;
+            _context.CartItems.Update(existingCartItem);
         }
         else
         {
-            var cartItem = new CartItem()
+            var newCartItem = new CartItem
             {
                 Id = Guid.NewGuid(),
                 CartId = userCart.Id,
-                ProductId = item.ProductId,
-                Quantity = item.Quantity,
+                ProductId = product.Id,
+                Quantity = quantity,
                 Price = product.Price,
-                TotalPrice = product.Price * item.Quantity
+                TotalPrice = product.Price * quantity
             };
-            
-            await _context.CartItems.AddAsync(cartItem);
+
+            await _context.CartItems.AddAsync(newCartItem);
         }
         
-        userCart.Subtotal = userCart.Items.Sum(i => 
-            i.ProductId == item.ProductId
-                ? (productExists?.TotalPrice ?? (product.Price * item.Quantity))
-                : i.TotalPrice);
+        userCart.Subtotal = userCart.Items
+            .Where(i => i.ProductId != productId)
+            .Sum(i => i.TotalPrice);
         
+        userCart.Subtotal += (existingCartItem?.TotalPrice ?? (product.Price * quantity));
         userCart.Total = userCart.Subtotal + userCart.ShippingFee;
         
         _context.Carts.Update(userCart);
@@ -116,7 +123,7 @@ public class CartRepository : ICartRepository
             .FirstOrDefaultAsync(c => c.Id == userCart.Id);
     }
 
-    public async Task<Cart> RemoveItemFromUserCartAsync(string sessionId, Guid productId)
+    public async Task<Cart> RemoveItemFromUserCartAsync(Guid productId, string sessionId)
     {
         if (string.IsNullOrWhiteSpace(sessionId))
             throw new ArgumentException("Session ID is required.");

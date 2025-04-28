@@ -1,68 +1,19 @@
+@using Application.Dtos.Product
+@inject  IProductService ProductService
+
 <h2 class="section-title">الاكثر مبيعا</h2>
+
 <div class="swiper product-swiper">
     <div class="swiper-wrapper">
-        <!-- Repeat this block for each product -->
-        <div class="swiper-slide product-card">
-            <img src="imgs/IMG_2098.JPG" alt="Product Image" class="product-image">
-            <h3 class="product-title">مفروشات الهانم السورية</h3>
-            <p class="product-price">300EGP</p>
-            <button class="add-to-cart-btn">اضف الى العربة</button>
-        </div>
-        <div class="swiper-slide product-card">
-            <img src="imgs/IMG_1922.JPG" alt="Product Image" class="product-image">
-            <h3 class="product-title">مفروشات الهانم السورية</h3>
-            <p class="product-price">300EGP</p>
-            <button class="add-to-cart-btn">اضف الى العربة</button>
-        </div>
-        <div class="swiper-slide product-card">
-            <img src="imgs/IMG_2098.JPG" alt="Product Image" class="product-image">
-            <h3 class="product-title">مفروشات الهانم السورية</h3>
-            <p class="product-price">300EGP</p>
-            <button class="add-to-cart-btn">اضف الى العربة</button>
-        </div>
-        <div class="swiper-slide product-card">
-            <img src="imgs/IMG_1922.JPG" alt="Product Image" class="product-image">
-            <h3 class="product-title">مفروشات الهانم السورية</h3>
-            <p class="product-price">300EGP</p>
-            <button class="add-to-cart-btn">اضف الى العربة</button>
-        </div>
-        <div class="swiper-slide product-card">
-            <img src="imgs/IMG_1922.JPG" alt="Product Image" class="product-image">
-            <h3 class="product-title">مفروشات الهانم السورية</h3>
-            <p class="product-price">300EGP</p>
-            <button class="add-to-cart-btn">اضف الى العربة</button>
-        </div>
-        <div class="swiper-slide product-card">
-            <img src="imgs/IMG_1922.JPG" alt="Product Image" class="product-image">
-            <h3 class="product-title">مفروشات الهانم السورية</h3>
-            <p class="product-price">300EGP</p>
-            <button class="add-to-cart-btn">اضف الى العربة</button>
-        </div>
-        <div class="swiper-slide product-card">
-            <img src="imgs/IMG_2098.JPG" alt="Product Image" class="product-image">
-            <h3 class="product-title">مفروشات الهانم السورية</h3>
-            <p class="product-price">300EGP</p>
-            <button class="add-to-cart-btn">اضف الى العربة</button>
-        </div>
-        <div class="swiper-slide product-card">
-            <img src="imgs/IMG_1922.JPG" alt="Product Image" class="product-image">
-            <h3 class="product-title">مفروشات الهانم السورية</h3>
-            <p class="product-price">300EGP</p>
-            <button class="add-to-cart-btn">اضف الى العربة</button>
-        </div>
-        <div class="swiper-slide product-card">
-            <img src="imgs/IMG_2098.JPG" alt="Product Image" class="product-image">
-            <h3 class="product-title">مفروشات الهانم السورية</h3>
-            <p class="product-price">300EGP</p>
-            <button class="add-to-cart-btn">اضف الى العربة</button>
-        </div>
-        <div class="swiper-slide product-card">
-            <img src="imgs/IMG_2283.JPG" alt="Product Image" class="product-image">
-            <h3 class="product-title">مفروشات الهانم السورية</h3>
-            <p class="product-price">300EGP</p>
-            <button class="add-to-cart-btn">اضف الى العربة</button>
-        </div>
-        <!-- more .swiper-slide -->
+        @foreach (var product in products)
+        {
+            <div class="swiper-slide product-card">
+                <img src="@product.ImageUrls.FirstOrDefault()" alt="Product Image" class="product-image">
+                <h3 class="product-title">@product.Name</h3>
+                <p class="product-price">@product.Price EGP</p>
+                <button class="add-to-cart-btn">اضف الى العربة</button>
+            </div>
+        }
     </div>
 
     <!-- Navigation arrows -->
@@ -73,3 +24,20 @@
         <i class="fa-solid fa-arrow-right"></i>
     </div>
 </div>
+
+@code {
+    [Parameter]
+    public string SliderType { get; set; } = "newest"; // Or use an enum for safety
+
+    private List<PublicProductDto> products = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = SliderType switch
+        {
+            "newest" => (await ProductService.GetNewestProductsAsync()).ToList(),
+            "oldest" => (await ProductService.GetLowestPriceProductsAsync()).ToList(),
+            _ => new()
+        };
+    }
+}

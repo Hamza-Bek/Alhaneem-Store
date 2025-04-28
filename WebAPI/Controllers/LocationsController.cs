@@ -18,10 +18,10 @@ public class LocationsController : ControllerBase
         _locationRepository = locationRepository;
     }
     
-    [HttpGet("get")]
-    public async Task<IActionResult> GetLocation()
+    [HttpGet()]
+    public async Task<IActionResult> GetLocation([FromQuery] string sessionId)
     {
-        var response = await _locationRepository.GetLocationByIdAsync();
+        var response = await _locationRepository.GetLocationBySessionAsync(sessionId);
         
         return Ok(new ApiResponse<Location>(
             "Location retrieved successfully",
@@ -30,7 +30,7 @@ public class LocationsController : ControllerBase
             ));
     }
     
-    [HttpPost("add")]
+    [HttpPost()]
     public async Task<IActionResult> AddLocation(LocationDto location, string sessionId)
     {
         var response = await _locationRepository.AddLocationAsync(location.ToModel(), sessionId);
@@ -43,9 +43,9 @@ public class LocationsController : ControllerBase
     }
     
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateLocation(Location location)
+    public async Task<IActionResult> UpdateLocation(Location location, string sessionId)
     {
-        var response = await _locationRepository.UpdateLocationAsync(location);
+        var response = await _locationRepository.UpdateLocationAsync(location, sessionId);
         
         return Ok(new ApiResponse<Location>(
             "Location updated successfully",
@@ -55,9 +55,9 @@ public class LocationsController : ControllerBase
     }
     
     [HttpDelete("delete")]
-    public async Task<IActionResult> DeleteLocation(Guid id)
+    public async Task<IActionResult> DeleteLocation(Guid locationId, string sessionId)
     {
-        var response = await _locationRepository.DeleteLocationAsync(id);
+        var response = await _locationRepository.DeleteLocationAsync(locationId, sessionId);
         
         return Ok(new ApiResponse<bool>(
             "Location deleted successfully",

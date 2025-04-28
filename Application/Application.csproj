@@ -12,6 +12,8 @@
 
   <ItemGroup>
     <PackageReference Include="FluentResults" Version="3.16.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>

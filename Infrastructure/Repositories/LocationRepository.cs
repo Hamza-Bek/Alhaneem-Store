@@ -20,28 +20,17 @@ public class LocationRepository : ILocationRepository
         _context = context;
     }
 
-    public async Task<Location> GetLocationByIdAsync()
+    public async Task<Location?> GetLocationBySessionAsync(string sessionId)
     {
-        Location location;
-        if(_userIdentity.Id != Guid.Empty)
-        {
-            location  = await _context.Locations
-                .FirstOrDefaultAsync(l => l.UserId == _userIdentity.Id);
-            
-            return location;
-        }
-        
-        var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
-        if (!string.IsNullOrEmpty(guestSessionId))
-        {
-            location = await _context.Locations
-                .FirstOrDefaultAsync(l => l.SessionId == guestSessionId);
-            
-            return location;
-        }
+        if (string.IsNullOrWhiteSpace(sessionId))
+            throw new ArgumentException("Session ID is required.");
 
-        return null;
+        var location = await _context.Locations
+            .FirstOrDefaultAsync(l => l.SessionId == sessionId);
+
+        return location;
     }
+
 
     public async Task<Location> AddLocationAsync(Location location, string sessionId)
     {
@@ -58,7 +47,15 @@ public class LocationRepository : ILocationRepository
             PhoneNumber2 = location.PhoneNumber2,
             Latitude = location.Latitude,
             Longitude = location.Longitude,
-            //CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            StreetAddress = location.StreetAddress,
+            City = location.City,
+            Building = location.Building,
+            Floor = location.Floor,
+            Apartment = location.Apartment,
+            Landmark = location.Landmark,
+            Geolocation = location.Geolocation,
+            Notes = location.Notes,
         };
 
         await _context.Locations.AddAsync(newLocation);
@@ -67,76 +64,45 @@ public class LocationRepository : ILocationRepository
         return newLocation;
     }
 
-
-    public async Task<Location> UpdateLocationAsync(Location location)
+    public async Task<Location?> UpdateLocationAsync(Location location, string sessionId)
     {
-        if (_userIdentity.Id != Guid.Empty)
-        {
-            var existingLocation = await _context.Locations
-                .FirstOrDefaultAsync(l => l.Id == location.Id && l.UserId == _userIdentity.Id);
+        if (string.IsNullOrWhiteSpace(sessionId))
+            throw new ArgumentException("Session ID is required.");
 
-            if (existingLocation != null)
-            {
-                UpdateLocationProperties(existingLocation, location);
-                await _context.SaveChangesAsync();
-                return existingLocation;
-            }
-        }
-        else
-        {
-            var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
-            if (!string.IsNullOrEmpty(guestSessionId))
-            {
-                var existingLocation = await _context.Locations
-                    .FirstOrDefaultAsync(l => l.Id == location.Id && l.SessionId == guestSessionId);
+        var existingLocation = await _context.Locations
+            .FirstOrDefaultAsync(l => l.Id == location.Id && l.SessionId == sessionId);
 
-                if (existingLocation != null)
-                {
-                    UpdateLocationProperties(existingLocation, location);
-                    await _context.SaveChangesAsync();
-                    return existingLocation;
-                }
-            }
-        }
+        if (existingLocation == null)
+            return null;
 
-        return null;
+        UpdateLocationProperties(existingLocation, location);
+        await _context.SaveChangesAsync();
+
+        return existingLocation;
     }
 
-    public async Task<bool> DeleteLocationAsync(Guid locationId)
+    public async Task<bool> DeleteLocationAsync(Guid locationId, string sessionId)
     {
-        Location location = null;
+        if (string.IsNullOrWhiteSpace(sessionId))
+            throw new ArgumentException("Session ID is required.");
 
-        if (_userIdentity.Id != Guid.Empty)
-        {
-            location = await _context.Locations
-                .FirstOrDefaultAsync(l => l.Id == locationId && l.UserId == _userIdentity.Id);
-        }
-        else
-        {
-            var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
-            if (!string.IsNullOrEmpty(guestSessionId))
-            {
-                location = await _context.Locations
-                    .FirstOrDefaultAsync(l => l.Id == locationId && l.SessionId == guestSessionId);
-            }
-        }
+        var location = await _context.Locations
+            .FirstOrDefaultAsync(l => l.Id == locationId && l.SessionId == sessionId);
 
-        if (location != null)
-        {
-            _context.Locations.Remove(location);
-            await _context.SaveChangesAsync();
-            return true;
-        }
+        if (location == null)
+            return false;
 
-        return false;
+        _context.Locations.Remove(location);
+        await _context.SaveChangesAsync();
+        return true;
     }
+
     
     private Location CreateNewLocation(Location location, Guid? userId, string sessionId)
     {
         return new Location
         {
             Id = Guid.NewGuid(),
-            UserId = userId,
             StreetAddress = location.StreetAddress,
             City = location.City,
             Building = location.Building,

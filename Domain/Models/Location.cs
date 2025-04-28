@@ -23,11 +23,8 @@ public class Location : EntityBase
     
     //Notes
     public string? Notes { get; set; }
-    
-    //Navigation Properties
-    public Guid? UserId { get; set; }  // Nullable for guest users
-    public virtual ApplicationUser User { get; set; }
-    
+
     //Guests
-    public string? SessionId { get; set; }
+    public string SessionId { get; set; } = string.Empty;
+    public DateTime? CreatedAt { get; set; }
 }
