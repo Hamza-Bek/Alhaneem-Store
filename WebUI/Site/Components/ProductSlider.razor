@@ -1,17 +1,21 @@
 @using Application.Dtos.Product
-@inject  IProductService ProductService
-
-<h2 class="section-title">الاكثر مبيعا</h2>
+@inject IJSRuntime JS
+@inject IProductService ProductService
 
 <div class="swiper product-swiper">
     <div class="swiper-wrapper">
         @foreach (var product in products)
-        {
-            <div class="swiper-slide product-card">
-                <img src="@product.ImageUrls.FirstOrDefault()" alt="Product Image" class="product-image">
-                <h3 class="product-title">@product.Name</h3>
-                <p class="product-price">@product.Price EGP</p>
-                <button class="add-to-cart-btn">اضف الى العربة</button>
+        {            
+            <div class="swiper-slide product-item">
+                <img src="@product.ImageUrls.FirstOrDefault()" alt="@product.Name" class="product-image">
+                <h3>@product.Name</h3>
+                <p>@product.Price EGP</p>
+
+                <div class="quantity-controls">
+                    <button><i class="fas fa-minus"></i></button>
+                    <span>0</span>
+                    <button><i class="fas fa-plus"></i></button>
+                </div>
             </div>
         }
     </div>
@@ -25,7 +29,7 @@
     </div>
 </div>
 
-@code {
+@code {  
     [Parameter]
     public string SliderType { get; set; } = "newest"; // Or use an enum for safety
 
@@ -40,4 +44,14 @@
             _ => new()
         };
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initSwiperSliders");
+        }
+    }
+
+   
 }

@@ -75,7 +75,7 @@
         }
     </div>
 
-    <button @onclick="UploadImages" class="upload-button">Upload Images</button>
+    <button @onclick="UploadImages" class="upload-button">Add Product</button>
 </EditForm>
 
 <script>
@@ -148,6 +148,7 @@
                 selectedFiles = null;
                 uploadedStreams.Clear();
                 StateHasChanged();
+                productId = Guid.NewGuid();
                 ProductModel = new ProductDto();
             }
         }

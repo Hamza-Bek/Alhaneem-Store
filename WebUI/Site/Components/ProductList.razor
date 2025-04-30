@@ -1,0 +1,63 @@
+﻿@using Application.Dtos.Product
+@inject IProductService ProductService
+
+<div class="product-list">
+    <div class="product-card">
+        <img src="https://i.imgur.com/UePbdph.png" alt="Notebook">
+        <h3>Notebook</h3>
+        <p>$5.99</p>
+    </div>
+    <div class="product-card">
+        <img src="https://i.imgur.com/z6E3zMN.png" alt="Pen">
+        <h3>Pen</h3>
+        <p>$1.49</p>
+    </div>
+    <div class="product-card">
+        <img src="https://i.imgur.com/W6QL2GD.png" alt="Pencil">
+        <h3>Pencil</h3>
+        <p>$0.99</p>
+    </div>
+    <div class="product-card">
+        <img src="https://i.imgur.com/dRCKPzT.png" alt="Eraser">
+        <h3>Eraser</h3>
+        <p>$0.50</p>
+    </div>
+    <div class="product-card">
+        <img src="https://i.imgur.com/R5ZT5WB.png" alt="School Bag">
+        <h3>School Bag</h3>
+        <p>$29.99</p>
+    </div>
+    <div class="product-card">
+        <img src="https://i.imgur.com/dRCKPzT.png" alt="Sharpener">
+        <h3>Sharpener</h3>
+        <p>$1.20</p>
+    </div>
+    <div class="product-card">
+        <img src="https://i.imgur.com/z6E3zMN.png" alt="Color Pencils">
+        <h3>Color Pencils</h3>
+        <p>$8.49</p>
+    </div>
+    <div class="product-card">
+        <img src="https://i.imgur.com/UePbdph.png" alt="School Diary">
+        <h3>School Diary</h3>
+        <p>$6.99</p>
+    </div>
+</div>
+
+
+@code {
+    // [Parameter]
+    // public string SliderType { get; set; } = "newest"; Or use an enum for safety
+
+    // private List<PublicProductDto> products = new();
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     products = SliderType switch
+    //     {
+    //         "newest" => (await ProductService.GetNewestProductsAsync()).ToList(),
+    //         "oldest" => (await ProductService.GetLowestPriceProductsAsync()).ToList(),
+    //         _ => new()
+    //     };
+    // }
+}

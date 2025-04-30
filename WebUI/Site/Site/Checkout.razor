@@ -1,0 +1,40 @@
+﻿@page "/checkout"
+
+<div class="container">
+  <h2>Order Summary</h2>
+
+  <!-- Cart Items -->
+  <div class="section">
+    <div class="section-title">
+      <span>Cart Items</span>
+    </div>
+    <div class="cart-item">
+      <span>Notebook</span>
+      <span>$5.99</span>
+    </div>
+    <div class="cart-item">
+      <span>Pen (x2)</span>
+      <span>$2.98</span>
+    </div>
+    <div class="summary">Total: $8.97</div>
+  </div>
+
+  <!-- Location -->
+  <div class="section">
+    <div class="section-title">
+      <span>Delivery Address</span>
+      <i class="fas fa-edit edit-icon" title="Edit Address"></i>
+    </div>
+    <div class="address-box">
+      John Doe<br/>
+      123 School Street<br/>
+      Floor 2, Apt 4B, Building 7<br/>
+      Cairo, Egypt
+    </div>
+  </div>
+  <div style="text-align:center; margin-top: 2rem;">
+    <button style="padding: 0.75rem 2rem; background: #4CAF50; color: white; border: none; border-radius: 25px; font-size: 1rem; cursor: pointer; transition: background 0.3s;">
+      Checkout
+    </button>
+  </div>
+</div>

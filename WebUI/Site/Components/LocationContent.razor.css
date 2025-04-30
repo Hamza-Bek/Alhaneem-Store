@@ -1,4 +1,11 @@
-﻿.location-description {
+﻿.location-section {
+    margin: 50px 0;
+    text-align: center;
+    font-family: sans-serif;
+}
+
+
+.location-description {
     margin-bottom: 20px;
     color: #444;
     font-size: 18px;

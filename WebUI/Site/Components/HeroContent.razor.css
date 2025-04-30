@@ -1,158 +1,81 @@
-
 .hero {
-    text-align: right;
+    text-align: center;
+    padding: 5rem 2rem;
+    background: url('/imgs/school-decoration-with-set-squares.jpg') no-repeat center/cover;
+    position: relative;
+    overflow: hidden;
 }
 
-.title {
-    font-size: 4.5rem;
-    color: #333;
-    padding-bottom: 3rem;
-}
-
-.description {
-    font-size: 1.5rem;
-    color: #666;
-    max-width: 50rem;
-    word-wrap: break-word; /* Prevents text overflow */
-    text-align: right; /* Ensures the text stays aligned to the right */
-    margin-left: auto; /* Pushes the element towards the right */
-    padding-bottom: 4rem;
-}
-
-
-
-.button {
-    font-size: 1rem;
-    font-family: bolder;
-    padding: 10px 20px;
-    color: black;
-    background-color: var(--gold-color);
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-    .button:hover {
-        background-color: #0056b3;
+    .hero h1 {
+        font-size: 3rem;
+        color: #4caf50;
+        margin-bottom: 1rem;
+        animation: fadeInDown 1s ease-out;
     }
 
-
-/* Responsive Tweaks */
-@media (max-width: 992px) {
-    .product-card {
-        max-width: 220px;
-    }
-
-    .product-image {
-        height: 160px;
-    }
-
-    .add-to-cart-btn {
-        font-size: 0.9rem;
-        padding: 7px 12px;
-    }
-}
-
-@media (max-width: 768px) {
-    .product-card {
-        max-width: 200px;
-    }
-
-    .product-image {
-        height: 150px;
-    }
-
-    .add-to-cart-btn {
-        font-size: 0.85rem;
-        padding: 6px 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .section-title {
-        text-align: center;
-        font-size: 1.5rem;
-    }
-
-    .product-card {
-        max-width: 180px;
-        padding: 10px;
-    }
-
-    .product-image {
-        height: 140px;
-    }
-
-    .add-to-cart-btn {
-        font-size: 0.8rem;
-    }
-}
-
-
-@media (max-width: 1200px) {
-    .container {
-        flex-direction: column; /* Stack elements vertically */
-    }
-
-    .title {
-        font-size: 2.5rem; /* Reduce title size */
-        text-align: center; /* Center align for mobile */
-    }
-
-    .description {
+    .hero p {
         font-size: 1.2rem;
-        text-align: center;
-        margin: 0 auto;
+        margin-bottom: 2rem;
+        color: #555;
+        animation: fadeInUp 1s ease-out;
+    }
+
+    .hero button {
+        padding: .8rem 2rem;
+        font-size: 1rem;
+        border: none;
+        background: #4caf50;
+        color: #fff;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: background .3s;
+        animation: fadeIn 2s ease-out;
+    }
+
+        .hero button:hover {
+            background: #45a049;
+        }
+
+@keyframes fadeInDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1
     }
 }
 
-@media (max-width: 760px) {
-    .card-wrapper {
-        margin: 0 50px 35px;
+@keyframes fadeInUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1
     }
 }
 
-@media (max-width: 580px) {
-    .card-wrapper {
-        margin: 0 40px 35px;
+@keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
     }
 }
 
-@media (max-width:550px) {
-    .card-wrapper {
-        margin: 0 0px 35px;
-    }
-}
-
-@media (max-width:530px) {
-    .card-wrapper {
-        margin: 0 10px 35px;
-    }
-}
-
-@media (max-width:450px) {
-    .card-wrapper {
-        margin: 0 -10px 35px;
-    }
-}
-
-@media (max-width: 400px) {
-    .card-wrapper {
-        margin: 0 -30px 35px;
-    }
-}
-
-@media (max-width: 380px) {
-    .card-wrapper {
-        margin: 0 -55px 35px;
+@media (max-width:768px) {
+    .hero h1 {
+        font-size: 2.2rem
     }
 
-    .slider-container.swiper {
-        width: 100%; /* Ensures full width on very small screens */
-        padding: 10px;
-    }
-
-    .card-list .card-item .card-link {
-        box-shadow: none;
+    .hero p {
+        font-size: 1rem
     }
 }

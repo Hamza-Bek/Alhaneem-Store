@@ -1,0 +1,18 @@
+﻿@page "/order-submitted"
+
+<div class="confirmation-box">
+    <h2>✅ Order Submitted</h2>
+    <p>Your order has been placed successfully. We will contact you soon to confirm delivery details.</p>
+    <button class="menu-button" @onclick="GoToMenu">Go to Menu</button>
+</div>
+
+@code {
+    private void GoToMenu()
+    {
+        // Navigate to the menu page                                           
+        NavigationManager.NavigateTo("/");
+    }
+                                                      
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+}

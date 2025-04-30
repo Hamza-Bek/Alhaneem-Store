@@ -1,145 +1,142 @@
-a {
-    all: unset;
-    cursor: pointer; /* Keeps it clickable */
-    display: block; /* Makes it behave like a list item */    
+:root {
+    --black-color: #969595;
+    --gold-color: #FFA62B;
 }
 
+/* Remove all margins and padding from elements */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-.navbar {
-    display: flex;
-    flex-direction: column;
+a {
+    all: unset;
+    cursor: pointer;
+    display: block;
+}
+
+/* Navbar styling */
+header {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,.1);
 }
 
 .navbar-container {
     display: flex;
-    width: 100%;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-    padding: 0rem 1.5rem;
+    padding: 1rem 2rem;
 }
 
-.navbar-logo {
-    order: 3;
-    font-weight: bolder;
-    font-size: xx-large;
-    font-family: "Aref Ruqaa", serif;
-    cursor: pointer;
+.logo {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #4caf50;
 }
 
+/* Nav items style */
 .navbar-items {
-    order: 2;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
-    height: 100%; 
-}
-
-.navbar-items ul {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.navbar-items li {
-    margin: 0 15px;
     display: flex;
     align-items: center;
-    font-weight: bold;
+    gap: 1.5rem;
+}
+
+    .navbar-items a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+        position: relative;
+    }
+
+        .navbar-items a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: #4caf50;
+            left: 0;
+            bottom: -5px;
+            transition: width 0.3s;
+        }
+
+        .navbar-items a:hover::after {
+            width: 100%;
+        }
+
+.cart-icon {
+    font-size: 1.5rem;
+    color: #333;
     cursor: pointer;
 }
 
-.navbar-item-active {
-    color: var(--gold-color);
+/* Hamburger menu setup */
+.hamburger-menu {
+    display: none;
 }
 
-.navbar-button {
-    order: 1;
-    display: flex;
-    gap: 10px;
-}
-
-.navbar-button button {
-    color: black;
-    font-size: larger;
-    background-color: var(--gold-color);
-    border-radius: 5px;
-    outline: none;
-    border: none;
-    font-weight: bolder;
-    padding: .25rem 1.5rem;
-}
-
-.navbar-button .login-text {
-    display: flex;
-    align-items: center;
-    color: var(--black-color);
-    font-weight: bolder;
-    cursor: pointer;
-}
-
-.register-text {
-    color: black;
-}
-
-.navbar-divider {
-    width: 100%;
-    height: 1px;
-    background-color: var(--black-color);
-    margin-top: 10px;
-}
-
+/* Hamburger button design */
 #menu__toggle {
     opacity: 0;
 }
-#menu__toggle:checked + .menu__btn > span {
-    transform: rotate(45deg);
-}
-#menu__toggle:checked + .menu__btn > span::before {
-    top: 0;
-    transform: rotate(0deg);
-}
-#menu__toggle:checked + .menu__btn > span::after {
-    top: 0;
-    transform: rotate(90deg);
-}
-#menu__toggle:checked ~ .menu__box {
-    left: 0 !important;
-}
+
+    #menu__toggle:checked + .menu__btn > span {
+        transform: rotate(45deg);
+    }
+
+        #menu__toggle:checked + .menu__btn > span::before {
+            top: 0;
+            transform: rotate(0deg);
+        }
+
+        #menu__toggle:checked + .menu__btn > span::after {
+            top: 0;
+            transform: rotate(90deg);
+        }
+
+    #menu__toggle:checked ~ .menu__box {
+        left: 0 !important;
+    }
+
 .menu__btn {
     position: fixed;
     top: 20px;
-    left: 20px;
+    right: 20px;
     width: 35px;
     padding: 1rem;
     height: 26px;
     cursor: pointer;
     z-index: 3;
 }
-.menu__btn > span,
-.menu__btn > span::before,
-.menu__btn > span::after {
-    display: block;
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    background-color: #616161;
-    transition-duration: .25s;
-}
-.menu__btn > span::before {
-    content: '';
-    top: -8px;
-}
-.menu__btn > span::after {
-    content: '';
-    top: 8px;
-}
+
+    .menu__btn > span,
+    .menu__btn > span::before,
+    .menu__btn > span::after {
+        display: block;
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background-color: #616161;
+        transition-duration: .25s;
+    }
+
+        .menu__btn > span::before {
+            content: '';
+            top: -8px;
+        }
+
+        .menu__btn > span::after {
+            content: '';
+            top: 8px;
+        }
+
 .menu__box {
     display: block;
     position: fixed;
     top: 0;
-    z-index:2;
     left: -100%;
     width: 300px;
     height: 100%;
@@ -147,9 +144,11 @@ a {
     padding: 80px 0;
     list-style: none;
     background-color: #ECEFF1;
-    box-shadow: 2px 2px 6px rgba(0, 0, 0, .4);
-    transition-duration: .25s;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    transition: left 0.25s;
+    z-index: 2;
 }
+
 .menu__item {
     display: block;
     padding: 12px 24px;
@@ -161,35 +160,17 @@ a {
     transition-duration: .25s;
 }
 
-.menu__box menu__item highlighted p{
-    background-color: var(--gold-color);
-}
-.menu__item:hover {
-    background-color: #CFD8DC;
-}
+    .menu__item:hover {
+        background-color: #CFD8DC;
+    }
 
-.hamburger-menu{
-    display: none;
-}
-
+/* Responsive settings */
 @media (max-width: 680px) {
-    .navbar-items{
+    .navbar-items, .cart-icon {
         display: none;
     }
 
-    .navbar-container{
-        width: fit-content;
-    }
-    
-    .navbar-button {
-        display: none;
-    }
-
-    .hamburger-menu{
-        width: 0;
-    }
-
-    .hamburger-menu{
-        display: flex;
+    .hamburger-menu {
+        display: block;
     }
 }

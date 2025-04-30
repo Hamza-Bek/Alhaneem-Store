@@ -1,0 +1,86 @@
+﻿@page "/location"
+@inject IJSRuntime JS
+
+<div class="container" dir="rtl" style="text-align: right;">
+    <h2> الموقع وتفاصيل التواصل</h2>
+    <form>
+        <div>
+            <label for="first-name">معلومات التواصل</label>
+            <input type="text" id="first-name" name="first-name" />
+            <div class="note">الاسم الكامل</div>
+        </div>
+        <div>
+            <label>&nbsp;</label>
+            <input type="tel" id="phone-number" name="phone-number" />
+            <div class="note">رقم الهاتف</div>
+        </div>
+
+        <div class="full-width">
+            <label for="address1">العنوان</label>
+            <input type="text" id="address1" name="address1" placeholder="العنوان" />
+        </div>
+        <div class="full-width">
+            <input type="text" id="address2" name="address2" placeholder="اسم الشارع" />
+        </div>
+
+        <div>
+            <input type="text" id="city" name="city" placeholder="المدينة" />
+        </div>
+        <div>
+            <input list="states" type="text" id="state" name="state" placeholder="المحافظة / المنطقة" />
+            <datalist id="states">
+                <option value="القاهرة" />
+            </datalist>
+        </div>
+
+        <div>
+            <input type="text" id="city" name="city" placeholder="البناء" />
+        </div>
+        <div>
+            <input type="text" id="state" name="state" placeholder="الطابق" />
+        </div>
+
+        <div class="full-width">
+            <label for="interest">حدد موقعك بالتفصيل!</label>
+            <textarea id="interest" name="interest" placeholder="اكتب هنا..."></textarea>
+        </div>
+
+        <div class="main-map-container">
+            <div id="map" class="map-container"></div>
+        </div>
+
+        <div class="location-actions full-width">
+            <button @onclick="DetectLocation" type="button" class="detect-btn">
+                📍 موقعي الحالي
+            </button>
+        </div>
+
+        <button type="submit">إرسال</button>
+    </form>
+</div>
+
+@code {
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initLeafletMap", DotNetObjectReference.Create(this));
+        }
+    }
+
+    private async Task DetectLocation()
+    {
+        await JS.InvokeVoidAsync("detectUserLocation", DotNetObjectReference.Create(this));
+    }
+
+    [JSInvokable]
+    public void SetLocation(double lat, double lng)
+    {
+        Latitude = lat;
+        Longitude = lng;
+        StateHasChanged();
+    }
+}

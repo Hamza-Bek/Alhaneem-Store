@@ -2,38 +2,17 @@
 @using WebUI.Site.Components
 @inject IJSRuntime JS
 
-<div class="container">
-    <div class="box left-box">
-        <ImageSlider/>
-    </div>
-    <div class="box right-box">
-       <HeroContent/>
-    </div>
-</div>
+<HeroContent />
 
-<div class="search-wrapper">
-    <SearchBar/>
-</div>
+<About />
 
-<div class="full-width-box">
-    <ProductSlider SliderType="newest" />
-</div>
+<ProductSlider SliderType="newest" />
 
-<div class="full-width-box">
-    <ProductSlider SliderType="oldest" />
-</div>
+<ProductSlider SliderType="oldest" />
 
-<div class="image-box">
-    <CategoryContent />
-</div>
+<LocationContent />
 
-<div class="location-section">
-   <LocationContent />
-</div>
-
-<footer class="site-footer">
-   <FooterContent />
-</footer>
+<FooterContent />
 
 @code {
     protected override async Task OnAfterRenderAsync(bool firstRender)
