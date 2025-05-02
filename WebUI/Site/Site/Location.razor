@@ -1,48 +1,56 @@
 ﻿@page "/location"
+@using Application.Dtos.Order
 @inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject ILocationService LocationService
 
 <div class="container" dir="rtl" style="text-align: right;">
-    <h2> الموقع وتفاصيل التواصل</h2>
-    <form>
+    <h2>الموقع وتفاصيل التواصل</h2>
+
+    <EditForm Model="locationModel" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
         <div>
             <label for="first-name">معلومات التواصل</label>
-            <input type="text" id="first-name" name="first-name" />
+            <input type="text" id="first-name" name="first-name" @bind="locationModel.Name" />
             <div class="note">الاسم الكامل</div>
         </div>
+
         <div>
             <label>&nbsp;</label>
-            <input type="tel" id="phone-number" name="phone-number" />
+            <input type="tel" id="phone-number" name="phone-number" @bind="locationModel.PhoneNumber1" />
             <div class="note">رقم الهاتف</div>
         </div>
 
         <div class="full-width">
             <label for="address1">العنوان</label>
-            <input type="text" id="address1" name="address1" placeholder="العنوان" />
+            <input type="text" id="address1" name="address1" placeholder="العنوان" @bind="locationModel.Address" />
         </div>
         <div class="full-width">
-            <input type="text" id="address2" name="address2" placeholder="اسم الشارع" />
+            <input type="text" id="address2" name="address2" placeholder="اسم الشارع" @bind="locationModel.StreetAddress" />
         </div>
 
         <div>
-            <input type="text" id="city" name="city" placeholder="المدينة" />
+            <input type="text" id="city" name="city" placeholder="المدينة" @bind="locationModel.City" />
         </div>
         <div>
-            <input list="states" type="text" id="state" name="state" placeholder="المحافظة / المنطقة" />
+            <input list="states" type="text" id="state" name="state" placeholder="المحافظة / المنطقة" @bind="locationModel.Landmark" />
             <datalist id="states">
                 <option value="القاهرة" />
             </datalist>
         </div>
 
         <div>
-            <input type="text" id="city" name="city" placeholder="البناء" />
+            <input type="text" id="building" name="building" placeholder="البناء" @bind="locationModel.Building" />
         </div>
         <div>
-            <input type="text" id="state" name="state" placeholder="الطابق" />
+            <input type="text" id="floor" name="floor" placeholder="الطابق" @bind="locationModel.Floor" />
         </div>
 
         <div class="full-width">
             <label for="interest">حدد موقعك بالتفصيل!</label>
-            <textarea id="interest" name="interest" placeholder="اكتب هنا..."></textarea>
+            <textarea id="interest" name="interest" placeholder="اكتب هنا..." @bind="locationModel.Notes"></textarea>
         </div>
 
         <div class="main-map-container">
@@ -56,12 +64,14 @@
         </div>
 
         <button type="submit">إرسال</button>
-    </form>
+    </EditForm>
 </div>
 
 @code {
+    private LocationDto locationModel = new();
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+    private string state = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -83,4 +93,105 @@
         Longitude = lng;
         StateHasChanged();
     }
+
+    private async Task HandleValidSubmit()
+    {
+        var sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
+        locationModel.SessionId = sessionId;
+        locationModel.City = state; // optional bind
+
+        var result = await LocationService.AddLocationAsync(locationModel, sessionId);
+
+        if (result != null)
+        {
+            Navigation.NavigateTo("/cart");
+        }
+        else
+        {
+            Console.WriteLine("Failed to submit location.");
+        }
+    }
 }
+
+    <style>
+    .container {
+        max-width: 720px;
+        margin: 3rem auto;
+        background: #fff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+        text-align: center;
+        color: #4CAF50;
+        margin-bottom: 2rem;
+    }
+
+    form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .full-width {
+        grid-column: 1 / -1;
+    }
+
+    label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.4rem;
+        font-size: 0.95rem;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 0.6rem;
+        font-size: 0.95rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background: #fafafa;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .note {
+        font-size: 0.8rem;
+        color: #777;
+        margin-top: 0.2rem;
+    }
+
+    .toggle-group {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .toggle-option {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    button {
+        grid-column: 1 / -1;
+        padding: 0.7rem 1.8rem;
+        background: #4CAF50;
+        color: #fff;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+        justify-self: center;
+    }
+
+        button:hover {
+            background: #45a049;
+        }
+    </style>
