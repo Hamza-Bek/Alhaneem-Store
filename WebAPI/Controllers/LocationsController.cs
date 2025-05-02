@@ -29,19 +29,14 @@ public class LocationsController : ControllerBase
             response
             ));
     }
-    
-    [HttpPost()]
-    public async Task<IActionResult> AddLocation(LocationDto location, string sessionId)
+
+    [HttpPost]
+    public async Task<IActionResult> AddLocation([FromBody] LocationDto dto)
     {
-        var response = await _locationRepository.AddLocationAsync(location.ToModel(), sessionId);
-        
-        return Ok(new ApiResponse<Location>(
-            "Location added successfully",
-            true,
-            response
-            ));
+        var result = await _locationRepository.AddLocationAsync(dto.ToModel(), dto.SessionId!);
+        return Ok(result.ToDto());
     }
-    
+
     [HttpPut("update")]
     public async Task<IActionResult> UpdateLocation(Location location, string sessionId)
     {
