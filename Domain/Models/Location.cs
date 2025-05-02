@@ -27,4 +27,6 @@ public class Location : EntityBase
     //Guests
     public string SessionId { get; set; } = string.Empty;
     public DateTime? CreatedAt { get; set; }
+    public Order Order { get; set; } = null!;
+
 }
