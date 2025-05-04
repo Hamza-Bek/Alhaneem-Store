@@ -1,0 +1,40 @@
+﻿.confirmation-box {
+    background: #e8f5e9;
+    border: 2px solid #4CAF50;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin: auto; /* Center horizontally */
+    position: absolute; /* Enable absolute positioning */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Adjust for the element's size */
+}
+
+    .confirmation-box h2 {
+        color: #4CAF50;
+        margin-bottom: 1rem;
+    }
+
+    .confirmation-box p {
+        color: #2e7d32;
+        font-size: 1.05rem;
+    }
+
+.menu-button {
+    margin-top: 1.5rem;
+    padding: 0.7rem 1.5rem;
+    background: #4CAF50;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+    .menu-button:hover {
+        background: #45a049;
+    }

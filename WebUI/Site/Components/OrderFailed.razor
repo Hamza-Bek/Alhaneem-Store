@@ -1,0 +1,18 @@
+﻿@page "/order-failed"
+
+<div class="confirmation-box">
+    <h2>❌ Order Failed</h2>
+    <p>Your order could not be completed. Please contact us at +20 112 345 2806 to place your order, or try again later</p>
+    <button class="menu-button" @onclick="GoToMenu">Go to Menu</button>
+</div>
+
+@code {
+    private void GoToMenu()
+    {
+        // Navigate to the menu page                                            
+        NavigationManager.NavigateTo("/");
+    }
+                                                      
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+}
