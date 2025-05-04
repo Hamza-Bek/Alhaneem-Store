@@ -1,40 +1,88 @@
 ﻿@page "/checkout"
+@inject NavigationManager Navigation
+@inject ICartService CartService
+@inject ILocationService LocationService
+@inject IOrderService OrderService
+@inject IJSRuntime JS
 
 <div class="container">
-  <h2>Order Summary</h2>
+    <h2>Order Summary</h2>
 
-  <!-- Cart Items -->
-  <div class="section">
-    <div class="section-title">
-      <span>Cart Items</span>
-    </div>
-    <div class="cart-item">
-      <span>Notebook</span>
-      <span>$5.99</span>
-    </div>
-    <div class="cart-item">
-      <span>Pen (x2)</span>
-      <span>$2.98</span>
-    </div>
-    <div class="summary">Total: $8.97</div>
-  </div>
+    @if (isLoading)
+    {
+        <p>Loading...</p>
+    }
+    else if (cart is null || cart.Items is null || !cart.Items.Any())
+    {
+        <p>Your cart is empty.</p>
+    }
+    else
+    {
+        <!-- Cart Items Section -->
+        <div class="section">
+            <div class="section-title">
+                <span>Cart Items</span>
+            </div>
 
-  <!-- Location -->
-  <div class="section">
-    <div class="section-title">
-      <span>Delivery Address</span>
-      <i class="fas fa-edit edit-icon" title="Edit Address"></i>
-    </div>
-    <div class="address-box">
-      John Doe<br/>
-      123 School Street<br/>
-      Floor 2, Apt 4B, Building 7<br/>
-      Cairo, Egypt
-    </div>
-  </div>
-  <div style="text-align:center; margin-top: 2rem;">
-    <button style="padding: 0.75rem 2rem; background: #4CAF50; color: white; border: none; border-radius: 25px; font-size: 1rem; cursor: pointer; transition: background 0.3s;">
-      Checkout
-    </button>
-  </div>
+            @foreach (var item in cart.Items)
+            {
+                <div class="cart-item">
+                    <span>@item.ProductName (x @item.Quantity)</span>
+                    <span>@item.TotalPrice EGP</span> @* or use "EGP @item.TotalPrice" *@
+                </div>
+            }
+
+            <div class="summary">
+                Total: EGP @cart.Total
+            </div>
+        </div>
+
+        <!-- Location Section -->
+        @if (location is not null)
+        {
+            <div class="section">
+                <div class="section-title">
+                    <span>Delivery Address</span>
+                    <i class="fas fa-edit edit-icon" title="Edit Address"></i>
+                </div>
+                <div class="address-box">
+                    @location.Name<br />
+                    @location.StreetAddress<br />
+                    Building @location.Building, Floor @location.Floor, Apt @location.Apartment<br />
+                    @location.City
+                </div>
+            </div>
+        }
+
+        <!-- Checkout Button -->
+        <div style="text-align:center; margin-top: 2rem;">
+            <button @onclick="SubmitOrderAsync"
+                    style="padding: 0.75rem 2rem; background: #4CAF50; color: white; border: none; border-radius: 25px; font-size: 1rem; cursor: pointer; transition: background 0.3s;">
+                Checkout
+            </button>
+        </div>
+    }
 </div>
+
+@code{
+    private CartDto? cart;
+    private LocationDto? location;
+    private string? sessionId;
+
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
+        cart = await CartService.GetUserCartBySessionIdAsync(sessionId);
+        location = await LocationService.GetLocationAsync(sessionId);
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task SubmitOrderAsync()
+    {
+        var success = await OrderService.SubmitOrderAsync(sessionId!);
+        Navigation.NavigateTo(success ? "/order-submitted" : "/order-failed");
+    }
+}
