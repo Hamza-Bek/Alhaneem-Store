@@ -1,8 +1,9 @@
-using System.Net.Mime;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mime;
+using System.Reflection.Emit;
 
 namespace Infrastructure.Data;
 
@@ -26,14 +27,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUser , IdentityRole<Gui
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
-        // One-to-Many: ApplicationUser ↔ Orders
+
         builder.Entity<Order>()
-            .HasOne(o => o.User)
-            .WithMany(u => u.Orders)
-            .HasForeignKey(o => o.UserId)
-            .OnDelete(DeleteBehavior.SetNull);
-        
+          .HasOne(o => o.Location)
+          .WithOne(l => l.Order)
+          .HasForeignKey<Order>(o => o.LocationId)
+          .OnDelete(DeleteBehavior.Restrict);
+
         // One-to-Many: Order ↔ OrderItems
         builder.Entity<OrderItem>()
             .HasOne(oi => oi.Order)
@@ -60,14 +60,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser , IdentityRole<Gui
             .HasOne(ci => ci.Product)
             .WithMany()
             .HasForeignKey(ci => ci.ProductId)
-            .OnDelete(DeleteBehavior.Restrict);
-        
-        // One-to-One: ApplicationUser ↔ Cart
-        builder.Entity<ApplicationUser>()
-            .HasOne(u => u.Cart)
-            .WithOne(c => c.User)
-            .HasForeignKey<Cart>(c => c.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
+            .OnDelete(DeleteBehavior.Restrict);                      
     }
 }
