@@ -28,44 +28,53 @@ public class CartsController : Controller
          true
       ));
    }
-   
-   [HttpGet("get")]
-   public async Task<IActionResult> GetCart([FromQuery]string sessionId)
-   {
-      var response = await _cartRepository.GetUserCartByIdAsync(sessionId);
-      
-      return Ok(new ApiResponse<Cart>(
-         "Product retrieved successfully",
-         true,
-         response
-      ));
-   }
-   
-   [HttpPost("item")]
-   public async Task<IActionResult> AddItemToCart(Guid productId, int quantity, string sessionId)
-   {
-      var response = await _cartRepository.AddItemToUserCartAsync(productId, quantity, sessionId);
-      
-      return Ok(new ApiResponse<Cart>(
-         "Item added to cart successfully",
-         true,
-         response
-      ));
-   }
-   
-   [HttpDelete("remove/item")]
-   public async Task<IActionResult> RemoveItemFromCart(Guid productId, string sessionId)
-   {
-      var response = await _cartRepository.RemoveItemFromUserCartAsync(productId, sessionId);
-      
-      return Ok(new ApiResponse<Cart>(
-         "Item removed from cart successfully",
-         true,
-         response
-      ));
-   }
-   
-   [HttpDelete("clear")]
+
+    [HttpGet("get/{sessionId}")]
+    public async Task<IActionResult> GetCart([FromRoute] string sessionId)
+    {
+        var cart = await _cartRepository.GetUserCartByIdAsync(sessionId);
+
+        if (cart is null)
+            return NotFound(new ApiResponse<CartDto>("Cart not found", false));
+
+        var cartDto = cart.ToDto();
+
+        return Ok(new ApiResponse<CartDto>(
+            "Cart retrieved successfully",
+            true,
+            cartDto
+        ));
+    }
+
+    [HttpPost("item/update")]
+    public async Task<IActionResult> UpdateItemQuantity([FromBody] UpdateCartItemRequest request)
+    {
+        try
+        {
+            var cart = await _cartRepository.UpdateItemQuantityAsync(request.ProductId, request.QuantityDelta, request.SessionId);
+            return Ok(new ApiResponse<CartDto>("Cart updated successfully", true, cart.ToDto()));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<CartDto>(ex.Message, false));
+        }
+    }
+
+    [HttpDelete("item")]
+    public async Task<IActionResult> RemoveItem([FromQuery] Guid productId, [FromQuery] string sessionId)
+    {
+        try
+        {
+            var cart = await _cartRepository.RemoveItemCompletelyAsync(productId, sessionId);
+            return Ok(new ApiResponse<CartDto>("Item removed successfully", true, cart.ToDto()));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<CartDto>(ex.Message, false));
+        }
+    }
+
+    [HttpDelete("clear")]
    public async Task<IActionResult> ClearCart()
    {
       var response = await _cartRepository.ClearUserCartAsync();
