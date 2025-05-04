@@ -70,3 +70,20 @@ function setMarker(lat, lng, dotNetHelper) {
     dotNetHelper.invokeMethodAsync('SetLocation', lat, lng);
 }
 
+
+window.showToast = function (message, type) {
+    const toast = document.createElement("div");
+    toast.textContent = message;
+    toast.className = "blazor-toast " + type;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add("show");
+    }, 100);
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+};
