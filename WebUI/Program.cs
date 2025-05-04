@@ -1,4 +1,6 @@
+using Application.Service;
 using Application.Services;
+using Blazored.Toast;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using WebUI;
@@ -11,6 +13,12 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
+builder.Services.AddHttpClient<IOrderService, OrderService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7201");
+});
 
 builder.Services.AddHttpClient<IProductService, ProductService>(client =>
 {

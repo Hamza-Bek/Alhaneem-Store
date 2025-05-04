@@ -286,3 +286,30 @@ code {
     }
 }
 
+.blazor-toast {
+    visibility: hidden;
+    position: fixed;
+    top: 80px;
+    right: 30px;
+    background-color: #4caf50;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+    .blazor-toast.show {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .blazor-toast.success {
+        background-color: #4CAF50;
+    }
+
+    .blazor-toast.error {
+        background-color: #F44336;
+    }
