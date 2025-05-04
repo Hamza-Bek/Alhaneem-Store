@@ -13,16 +13,10 @@ public class ProductService : IProductService
         _httpClient = httpClient;
     }
 
-    public async Task<PublicProductDto> GetAllProductsAsync()
-    {
-        var response = await _httpClient.GetAsync("api/Products/get/all");
-        if (response.IsSuccessStatusCode)
-        {
-            var products = await response.Content.ReadFromJsonAsync<PublicProductDto>();
-            return products;
-        }
-        
-        return null;
+    public async Task<List<PublicProductDto>> GetAllProductsAsync()
+    {        
+        var response = await _httpClient.GetFromJsonAsync<ApiResponse<List<PublicProductDto>>>("api/Products/get/all");
+        return response?.Data ?? new();
     }
 
     public async Task<List<PublicProductDto>> GetNewestProductsAsync()
