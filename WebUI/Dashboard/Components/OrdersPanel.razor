@@ -1,4 +1,6 @@
-﻿@inject IJSRuntime JS
+﻿@using Domain.Enums
+@inject IJSRuntime JS
+@inject IOrderAdminService OrderAdminService
 
 <h2>📦 Pending Orders</h2>
 <div class="orders-table">
@@ -11,103 +13,96 @@
         <div>Action</div>
     </div>
 
-    <div class="order-row">
-        <div data-label="ID">#1001</div>
-        <div data-label="Customer">Ali Khan</div>
-        <div data-label="Total">$120.00</div>
-        <div data-label="Status" class="status pending">Pending</div>
-        <div data-label="Date">2025-04-01</div>
-        <div data-label="Action" class="action-cell">
-            <div class="action-menu">
-                ⋮
-                <div class="dropdown">
-                    <a href="/Admin/Order/Details">View Order</a>
-                    <button class="dropdown-action accept">Accept</button>
-                    <button class="dropdown-action reject">Reject</button>
+    @if (orders != null)
+    {
+        foreach (var order in orders)
+        {
+            <div class="order-row">
+                <div data-label="ID">@order.OrderNumber</div>
+                <div data-label="Customer">@(order.Location?.Name ?? "Guest")</div>
+                <div data-label="Total">@order.Subtotal EGP</div>
+                <div data-label="Status" class="status pending">@order.OrderStatus</div>
+                <div data-label="Date">@order.CreatedAt.ToString("hh:mm tt, dddd, MMMM yyyy")</div>
+                <div data-label="Action" class="action-cell">
+                    <div class="action-menu">
+                        ⋮
+                        <div class="dropdown">
+                            <a href="/Admin/Order/Details">View Order</a>
+                            <button class="dropdown-action accept"
+                                    @onclick="(e) => AcceptOrder(OrderStatus.Accepted, order.Id)"
+                                    @onclick:stopPropagation="true">
+                                Accept
+                            </button>
+
+                            <button class="dropdown-action reject"
+                                    @onclick="(e) => ConfirmReject(order.Id)"
+                                    @onclick:stopPropagation="true">
+                                Reject
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="divider"></div>
-    <div class="order-row">
-        <div data-label="ID">#1002</div>
-        <div data-label="Customer">Emma Watson</div>
-        <div data-label="Total">$88.50</div>
-        <div data-label="Status" class="status shipped">Shipped</div>
-        <div data-label="Date">2025-04-01</div>
-        <div data-label="Action" class="action-cell">
-            <div class="action-menu">
-                ⋮
-                <div class="dropdown">
-                    <a href="/Admin/Order/Details">View Order</a>
-                    <button class="dropdown-action accept">Accept</button>
-                    <button class="dropdown-action reject">Reject</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="divider"></div>
-    <div class="order-row">
-        <div data-label="ID">#1003</div>
-        <div data-label="Customer">Mohamed Salah</div>
-        <div data-label="Total">$55.25</div>
-        <div data-label="Status" class="status delivered">Delivered</div>
-        <div data-label="Date">2025-03-31</div>
-        <div data-label="Action" class="action-cell">
-            <div class="action-menu">
-                ⋮
-                <div class="dropdown">
-                    <a href="/Admin/Order/Details">View Order</a>
-                    <button class="dropdown-action accept">Accept</button>
-                    <button class="dropdown-action reject">Reject</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="divider"></div>
-    <div class="order-row">
-        <div data-label="ID">#1004</div>
-        <div data-label="Customer">Sara Lee</div>
-        <div data-label="Total">$212.10</div>
-        <div data-label="Status" class="status canceled">Canceled</div>
-        <div data-label="Date">2025-03-30</div>
-        <div data-label="Action" class="action-cell">
-            <div class="action-menu">
-                ⋮
-                <div class="dropdown">
-                    <a href="/Admin/Order/Details">View Order</a>
-                    <button class="dropdown-action accept">Accept</button>
-                    <button class="dropdown-action reject">Reject</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="divider"></div>
-    <div class="order-row">
-        <div data-label="ID">#1005</div>
-        <div data-label="Customer">David N.</div>
-        <div data-label="Total">$67.00</div>
-        <div data-label="Status" class="status pending">Pending</div>
-        <div data-label="Date">2025-03-29</div>
-        <div data-label="Action" class="action-cell">
-            <div class="action-menu">
-                ⋮
-                <div class="dropdown">
-                    <a href="/Admin/Order/Details">View Order</a>
-                    <button class="dropdown-action accept">Accept</button>
-                    <button class="dropdown-action reject">Reject</button>
-                </div>
-            </div>
-        </div>
-    </div>
+            <div class="divider"></div>
+        }
+    }
+    else
+    {
+        <p>Loading orders...</p>
+    }    
 </div>
 
 @code {
+
+    private IEnumerable<OrderDto> orders;
+    private bool dataLoaded = false;
+    private bool _jsInitialized = false;
+
+    private async Task ConsoleLog()
+    {
+        await JS.InvokeVoidAsync("console.log", "Hello");
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (!_jsInitialized && dataLoaded)
         {
+            _jsInitialized = true;
             await JS.InvokeVoidAsync("setupActionMenus");
         }
     }
+
+    protected override async Task OnInitializedAsync()
+    {        
+        var allOrders = await OrderAdminService.GetAllOrdersAsync();
+        orders = allOrders
+            .Where(o => o.OrderStatus == OrderStatus.Pending.ToString())
+            .ToList();
+
+        dataLoaded = true;
+    }
+
+    private async Task AcceptOrder(OrderStatus orderStatus, Guid orderId)
+    {
+        await OrderAdminService.UpdateOrderStatusAsync(orderId , orderStatus);
+        await JS.InvokeVoidAsync("showToast", "Order accepted successfully!");
+
+        orders = orders.Where(o => o.Id != orderId).ToList();
+        StateHasChanged();
+    }
+
+    private async Task ConfirmReject(Guid orderId)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("showRejectConfirmation");
+
+        if (confirmed)
+        {
+            await OrderAdminService.UpdateOrderStatusAsync(orderId, OrderStatus.Rejected);
+            await JS.InvokeVoidAsync("showToast", "Order rejected.");
+
+            orders = orders.Where(o => o.Id != orderId).ToList();
+            StateHasChanged();            
+        }
+    }
+
 }
