@@ -3,9 +3,11 @@ using Domain.Models;
 
 namespace Application.Interfaces;
 
-public interface IAdminRepository
+public interface IProductAdminRepository
 {
     /// Product Management
+    Task<List<Product>> GetAllProducts();
+    Task<Product> GetProductByIdAsync(Guid id);
     Task<Product> CreateProductAsync(Product product);
     Task<Product> UpdateProductAsync(Guid productId, Product product);
     Task<bool> DeleteProductAsync(Guid id);

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace Application.Services;
 
-public interface IAdminService
+public interface IProductAdminService
 {
     Task<Product?> CreateProductAsync(ProductDto product);
     Task<bool> UploadProductImagesAsync(Guid productId, IReadOnlyList<IBrowserFile> files);
