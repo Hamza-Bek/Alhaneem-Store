@@ -1,4 +1,6 @@
+using Application.Dtos.Product;
 using Application.Interfaces;
+using Application.Mappers;
 using Application.Options;
 using Domain.Enums;
 using Domain.Models;
@@ -7,13 +9,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
-public class AdminRepository : IAdminRepository
+public class ProductAdminRepository : IProductAdminRepository
 {
     private readonly AppDbContext _context;
 
-    public AdminRepository(UserIdentity userIdentity, AppDbContext context)
+    public ProductAdminRepository(UserIdentity userIdentity, AppDbContext context)
     {
         _context = context;
+    }
+
+
+    public async Task<List<Product>> GetAllProducts()
+    {
+        var products = await _context.Products
+            .Include(i => i.Images)            
+            .ToListAsync();
+
+        return products;        
+    }
+
+    public async Task<Product> GetProductByIdAsync(Guid id)
+    {
+        var product = await _context.Products.Where(i => i.Id == id).Include(i => i.Images)
+            .FirstOrDefaultAsync();
+
+        return product;
     }
 
     public async Task<Product> CreateProductAsync(Product product)
@@ -77,6 +97,8 @@ public class AdminRepository : IAdminRepository
         return true;
     }
 
+    #region Category Management
+
     public async Task<bool> CreateCategoryAsync(Category category)
     {
         var newCategory = new Category()
@@ -105,4 +127,5 @@ public class AdminRepository : IAdminRepository
         await _context.SaveChangesAsync();
         return true;
     }
+    #endregion
 }
