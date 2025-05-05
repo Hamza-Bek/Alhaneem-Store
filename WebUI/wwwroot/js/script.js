@@ -87,3 +87,47 @@ window.showToast = function (message, type) {
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 };
+
+window.showRejectConfirmation = async function () {
+    return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = 0;
+        overlay.style.left = 0;
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.background = 'rgba(0,0,0,0.6)';
+        overlay.style.display = 'flex';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+        overlay.style.zIndex = 10000;
+
+        const box = document.createElement('div');
+        box.style.background = '#fff';
+        box.style.padding = '1rem 1.5rem';
+        box.style.width = '400px'; 
+        box.style.maxWidth = '90%';
+        box.style.borderRadius = '10px';
+        box.style.boxShadow = '0 0 10px rgba(0,0,0,0.2)';
+        box.innerHTML = `
+                <h3 style="margin-bottom: 1rem;">Are you sure you want to reject this order?</h3>
+                <div style="display: flex; justify-content: space-between; gap: 1rem;">
+                    <button id="confirmReject" style="background: #d9534f; color: white; padding: .5rem 1rem; border: none; border-radius: 5px;">Yes</button>
+                    <button id="cancelReject" style="background: #5bc0de; color: white; padding: .5rem 1rem; border: none; border-radius: 5px;">Cancel</button>
+                </div>
+            `;
+
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        document.getElementById('confirmReject').onclick = () => {
+            document.body.removeChild(overlay);
+            resolve(true);
+        };
+
+        document.getElementById('cancelReject').onclick = () => {
+            document.body.removeChild(overlay);
+            resolve(false);
+        };
+    });
+}
