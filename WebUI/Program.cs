@@ -11,9 +11,15 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
-builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IProductAdminService, ProductAdminService>();
+builder.Services.AddScoped<IOrderAdminService, OrderAdminService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+
+builder.Services.AddHttpClient<IOrderAdminService, OrderAdminService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7201");
+});
 
 builder.Services.AddHttpClient<IOrderService, OrderService>(client =>
 {
@@ -35,7 +41,7 @@ builder.Services.AddHttpClient<ILocationService, LocationService>(client =>
     client.BaseAddress = new Uri("https://localhost:7201");
 });
 
-builder.Services.AddHttpClient<IAdminService, AdminService>(client =>
+builder.Services.AddHttpClient<IProductAdminService, ProductAdminService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7201");
 });
