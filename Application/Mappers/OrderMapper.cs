@@ -24,7 +24,7 @@ namespace Application.Mappers
                 ShippingFee = order.ShippingFee,
                 DiscountAmount = order.DiscountAmount,
                 Total = order.Total,
-
+                SessionId = order.SessionId,
                 Items = order.Items.Select(item => new OrderItemDto
                 {
                     ProductId = item.ProductId,
@@ -33,7 +33,7 @@ namespace Application.Mappers
                     Quantity = item.Quantity,
                     Price = item.Price,
                     TotalPrice = item.TotalPrice
-                }).ToList(),
+                }).ToList(),                
                 Location = order.Location?.ToDto()
             };
         }
