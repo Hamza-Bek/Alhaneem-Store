@@ -3,9 +3,12 @@
 
     menus.forEach(menu => {
         menu.addEventListener('click', function (e) {
-            e.stopPropagation();
-            menus.forEach(m => m.classList.remove('active'));
-            this.classList.toggle('active');
+            // Only toggle if clicking the menu icon, not inside dropdown
+            if (!e.target.closest('.dropdown')) {
+                e.stopPropagation();
+                menus.forEach(m => m.classList.remove('active'));
+                this.classList.toggle('active');
+            }
         });
     });
 
