@@ -1,0 +1,12 @@
+﻿@page "/Admin/Order/Details/{orderId:guid}"
+@using WebUI.Dashboard.Components
+@layout DashLayout
+
+<div class="order-details-container">
+    <OrderShowDetailsPanel OrderId="orderId" />
+</div>
+
+@code {
+    [Parameter]
+    public Guid orderId { get; set; }
+}
