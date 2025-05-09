@@ -1,0 +1,74 @@
+﻿@inject IJSRuntime JS
+@inject IOrderAdminService OrderAdminService
+
+<h2>📦 Orders To Prepare</h2>
+<div class="orders-table">
+    <div class="order-row header">
+        <div>ID</div>
+        <div>Customer</div>
+        <div>Total</div>
+        <div>Status</div>
+        <div>Date</div>
+        <div>Action</div>
+    </div>
+
+    @if (orders != null)
+    {
+        foreach (var order in orders)
+        {
+            <div class="order-row">
+                <div data-label="ID">@order.OrderNumber</div>
+                <div data-label="Customer">@(order.Location?.Name ?? "Guest")</div>
+                <div data-label="Total">@order.Subtotal EGP</div>
+                <div data-label="Status" class="status pending">@order.OrderStatus</div>
+                <div data-label="Date">@order.CreatedAt.ToString("hh:mm tt, dddd, MMMM yyyy")</div>
+                <div data-label="Action" class="action-cell">
+                    <div class="action-menu">
+                        ⋮
+                        <div class="dropdown">
+                            <a href="@($"/Admin/Order/Details/{order.Id}")">View Order</a>
+                            <button class="dropdown-action accept"
+                                    @onclick="(e) => OrderShipped(DeliveryStatus.Shipped, order.Id)"
+                                    @onclick:stopPropagation="true">
+                                Shipped
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="divider"></div>
+        }
+    }   
+    else
+    {
+        <p>Loading orders...</p>
+    }
+</div>
+
+@code {
+    private IEnumerable<OrderDto> orders;
+    private bool dataLoaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("setupActionMenus");        
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var allOrders = await OrderAdminService.GetAllOrdersAsync();
+        orders = allOrders
+            .Where(o => o.OrderStatus == OrderStatus.Accepted.ToString() && o.DeliveryStatus == DeliveryStatus.ReadyForDelivery.ToString())
+            .OrderByDescending(o => o.CreatedAt);
+        dataLoaded = true;
+    }
+
+    private async Task OrderShipped(DeliveryStatus status, Guid orderId)
+    {
+        await OrderAdminService.UpdateDeliveryStatusAsync(orderId, status);
+        await JS.InvokeVoidAsync("showToast", "Order is Shipped");
+
+        orders = orders.Where(o => o.Id != orderId).ToList();
+        StateHasChanged();
+    }
+}
