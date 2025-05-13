@@ -1,30 +1,41 @@
-﻿@page "/Product/View"
+﻿@page "/Product/View/{productId:guid}"
+@using Application.Dtos.Product
+@using WebUI.Site.Components
+@inject ICartService CartService
+@inject IProductService ProductService
+@inject IJSRuntime JS
 
-<div class="product-view-container">
-    <!-- LEFT: Gallery -->
-    <div class="product-gallery">
-        <div class="main-image">
-            <img id="mainProductImage" src="imgs/IMG_2098.JPG" alt="Main Product Image">
+<div class="main">
+@if (product is not null)
+{
+    <div class="product-view-container">
+        <!-- LEFT: Gallery -->
+        <div class="product-gallery">
+            <div class="main-image">
+                <img id="mainProductImage" src="@product.ImageUrls.FirstOrDefault()" alt="Main Product Image">
+            </div>
+            <div class="thumbnail-row">
+                @foreach (var imageUrl in product.ImageUrls)
+                {
+                    <img src="@imageUrl" alt="Thumbnail" class="thumbnail" onclick="changeImage(this)">
+                }
+            </div>
         </div>
-        <div class="thumbnail-row">
-            <img src="imgs/IMG_2098.JPG" alt="Thumb 1" class="thumbnail" onclick="changeImage(this)">
-            <img src="imgs/IMG_1922.JPG" alt="Thumb 2" class="thumbnail" onclick="changeImage(this)">
-            <img src="imgs/IMG_2283.JPG" alt="Thumb 3" class="thumbnail" onclick="changeImage(this)">
-            <img src="imgs/IMG_2098.JPG" alt="Thumb 4" class="thumbnail" onclick="changeImage(this)">
+
+        <!-- RIGHT: Info -->
+        <div class="product-info">
+            <h1 class="product-title">@product.Name</h1>
+            <p class="product-description">
+                @product.Description
+            </p>
+            <p class="product-price">@product.Price EGP</p>
+             <button class="add-to-cart-btn" @onclick="() => AddToCart(product.Id)">
+                        Add to Cart
+                    </button>
         </div>
     </div>
-
-    <!-- RIGHT: Info -->
-    <div class="product-info">
-        <h1 class="product-title">مفروشات الهانم السورية</h1>
-        <p class="product-description">
-            هذا المنتج مصنوع من أجود الخامات، تصميم فاخر يلائم جميع الأذواق ويوفر راحة مثالية. متوفر بعدة ألوان ومقاسات حسب رغبتك.
-        </p>
-        <p class="product-price">300 EGP</p>
-        <button class="add-to-cart-btn">اضف الى العربة</button>
-    </div>
+}
 </div>
-
 
 <script>
     function changeImage(thumb) {
@@ -49,8 +60,33 @@
     });
 </script>
 
-
-
 @code {
+    [Parameter]
+    public Guid productId { get; set; }
+    private string? sessionId;
+    private PublicProductDto product;
 
+    protected override async Task OnInitializedAsync()
+    {        
+        sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
+
+        if (string.IsNullOrWhiteSpace(sessionId))
+        {
+            sessionId = Guid.NewGuid().ToString();
+            await CartService.CreateCartAsync(sessionId);
+            await JS.InvokeVoidAsync("sessionHelper.setSessionId", sessionId);
+        }
+
+        product = await ProductService.GetProductById(productId);       
+    }
+
+    private async Task AddToCart(Guid productId)
+    {
+        if (sessionId is null)
+            return;
+
+        var response = await CartService.UpdateItemQuantityAsync(productId, 1, sessionId);
+
+        await JS.InvokeVoidAsync("showToast", "Added Successfully", "success");
+    }
 }

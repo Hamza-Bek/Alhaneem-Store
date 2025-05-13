@@ -1,57 +1,102 @@
 @using Application.Dtos.Product
 @inject IJSRuntime JS
 @inject IProductService ProductService
+@inject ICartService CartService
+@inject NavigationManager NavigationManager
 
-<div class="swiper product-swiper">
-    <div class="swiper-wrapper">
-        @foreach (var product in products)
-        {            
-            <div class="swiper-slide product-item">
-                <img src="@product.ImageUrls.FirstOrDefault()" alt="@product.Name" class="product-image">
-                <h3>@product.Name</h3>
-                <p>@product.Price EGP</p>
+@if (isLoading)
+{
+   <ProductLoader />
+}
+else
+{
+    <div class="swiper product-swiper">
+        <div class="swiper-wrapper">
+            @foreach (var product in products)
+            {
+                <div class="swiper-slide product-item">
+                    <img src="@product.ImageUrls.FirstOrDefault()" alt="@product.Name" class="product-image">
+                    <h3>@product.Name</h3>
+                    <p>@product.Price EGP</p>
 
-                <div class="quantity-controls">
-                    <button><i class="fas fa-minus"></i></button>
-                    <span>0</span>
-                    <button><i class="fas fa-plus"></i></button>
+                    <div class="button-wrapper">
+                        <a class="view-btn" @onclick="() => NavigateToProductView(product.Id)">
+                            <i class="fa-solid fa-up-right-from-square"></i>
+                        </a>
+                        <button class="add-to-cart-btn" @onclick="() => AddToCart(product.Id)">
+                            Add to Cart
+                        </button>
+                    </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
 
-    <!-- Navigation arrows -->
-    <div class="swiper-button-prev">
-        <i class="fa-solid fa-arrow-left"></i>
+        <div class="swiper-button-prev">
+            <i class="fa-solid fa-arrow-left"></i>
+        </div>
+        <div class="swiper-button-next">
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
     </div>
-    <div class="swiper-button-next">
-        <i class="fa-solid fa-arrow-right"></i>
-    </div>
-</div>
+}
 
-@code {  
+
+@code {
     [Parameter]
-    public string SliderType { get; set; } = "newest"; // Or use an enum for safety
+    public string SliderType { get; set; } = "newest";
+
+    private bool shouldInitSwiper = false;
+    private bool isLoading = true;
 
     private List<PublicProductDto> products = new();
+    private string? sessionId;
 
     protected override async Task OnInitializedAsync()
     {
+        isLoading = true;
+
+        sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
+
+        if (string.IsNullOrWhiteSpace(sessionId))
+        {
+            sessionId = Guid.NewGuid().ToString();
+            await CartService.CreateCartAsync(sessionId);
+            await JS.InvokeVoidAsync("sessionHelper.setSessionId", sessionId);
+        }
+
         products = SliderType switch
         {
             "newest" => (await ProductService.GetNewestProductsAsync()).ToList(),
             "oldest" => (await ProductService.GetLowestPriceProductsAsync()).ToList(),
             _ => new()
         };
+
+        isLoading = false;
+        shouldInitSwiper = true;
+        StateHasChanged(); 
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (shouldInitSwiper)
         {
+            shouldInitSwiper = false; 
             await JS.InvokeVoidAsync("initSwiperSliders");
         }
     }
 
-   
+    private async Task AddToCart(Guid productId)
+    {
+        if (sessionId == null) return;
+
+        var response = await CartService.UpdateItemQuantityAsync(productId, 1, sessionId);
+
+        await JS.InvokeVoidAsync("showToast", "Product added to cart", "success");
+    }
+
+    private void NavigateToProductView(Guid productId)
+    {
+        NavigationManager.NavigateTo($"/Product/View/{productId}");
+    }
 }
+

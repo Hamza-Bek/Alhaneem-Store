@@ -1,63 +1,68 @@
 ﻿@using Application.Dtos.Product
 @inject IProductService ProductService
+@inject ICartService CartService
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 
 <div class="product-list">
-    <div class="product-card">
-        <img src="https://i.imgur.com/UePbdph.png" alt="Notebook">
-        <h3>Notebook</h3>
-        <p>$5.99</p>
-    </div>
-    <div class="product-card">
-        <img src="https://i.imgur.com/z6E3zMN.png" alt="Pen">
-        <h3>Pen</h3>
-        <p>$1.49</p>
-    </div>
-    <div class="product-card">
-        <img src="https://i.imgur.com/W6QL2GD.png" alt="Pencil">
-        <h3>Pencil</h3>
-        <p>$0.99</p>
-    </div>
-    <div class="product-card">
-        <img src="https://i.imgur.com/dRCKPzT.png" alt="Eraser">
-        <h3>Eraser</h3>
-        <p>$0.50</p>
-    </div>
-    <div class="product-card">
-        <img src="https://i.imgur.com/R5ZT5WB.png" alt="School Bag">
-        <h3>School Bag</h3>
-        <p>$29.99</p>
-    </div>
-    <div class="product-card">
-        <img src="https://i.imgur.com/dRCKPzT.png" alt="Sharpener">
-        <h3>Sharpener</h3>
-        <p>$1.20</p>
-    </div>
-    <div class="product-card">
-        <img src="https://i.imgur.com/z6E3zMN.png" alt="Color Pencils">
-        <h3>Color Pencils</h3>
-        <p>$8.49</p>
-    </div>
-    <div class="product-card">
-        <img src="https://i.imgur.com/UePbdph.png" alt="School Diary">
-        <h3>School Diary</h3>
-        <p>$6.99</p>
-    </div>
+    @if (products == null)
+    {
+        <p>Loading products...</p>
+    }
+    else if (!products.Any())
+    {
+        <p>No products found.</p>
+    }
+    else
+    {
+        @foreach (var product in products)
+        {
+            <div class="product-card">
+                <img src="@product.ImageUrls.FirstOrDefault()" alt="@product.Name">
+                <h3>@product.Name</h3>
+                <p>@product.Price EGP</p>
+                <div class="button-wrapper">
+                    <a class="view-btn" @onclick="() => NavigateToProductView(product.Id)">
+                        <i class="fa-solid fa-up-right-from-square"></i>
+                    </a>
+                    <button class="add-to-cart-btn" @onclick="() => AddToCart(product.Id)">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        }
+    }
 </div>
 
-
 @code {
-    // [Parameter]
-    // public string SliderType { get; set; } = "newest"; Or use an enum for safety
+    private List<PublicProductDto> products = new();    
+    private string? sessionId;
 
-    // private List<PublicProductDto> products = new();
+    protected override async Task OnInitializedAsync()
+    {
+        sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     products = SliderType switch
-    //     {
-    //         "newest" => (await ProductService.GetNewestProductsAsync()).ToList(),
-    //         "oldest" => (await ProductService.GetLowestPriceProductsAsync()).ToList(),
-    //         _ => new()
-    //     };
-    // }
+        if (string.IsNullOrWhiteSpace(sessionId))
+        {
+            sessionId = Guid.NewGuid().ToString();
+            await CartService.CreateCartAsync(sessionId);
+            await JS.InvokeVoidAsync("sessionHelper.setSessionId", sessionId);
+        }
+
+        products = await ProductService.GetAllProductsAsync();
+    }
+
+    private async Task AddToCart(Guid productId)
+    {
+        if (sessionId == null) return;
+
+        var response = await CartService.UpdateItemQuantityAsync(productId, 1, sessionId);
+
+        await JS.InvokeVoidAsync("showToast", "Added Successfully", "success");
+    }
+
+    private void NavigateToProductView(Guid productId)
+    {
+        NavigationManager.NavigateTo($"/Product/View/{productId}");
+    }
 }
