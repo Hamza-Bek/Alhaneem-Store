@@ -1,54 +1,106 @@
 ﻿@page "/cart"
+@using Application.Dtos.Cart
+@using Application.Service
+@using WebUI.Site.Components
+@inject IJSRuntime JS
+@inject ICartService CartService
+@inject IOrderService OrderService
+@inject ILocationService LocationService
+@inject NavigationManager Navigation
 
 <section class="cart-container">
-    <h2 class="cart-title">Your Cart</h2>
-    <div class="cart-items">
-
-        <div class="cart-item">
-            <div class="item-image">
-                <img src="https://i.imgur.com/UePbdph.png" alt="Notebook">
-            </div>
-            <div class="item-info">
-                <h4>Notebook</h4>
-                <p>High quality notebook</p>
-            </div>
-            <div class="item-quantity">
-                <button><i class="fas fa-minus"></i></button>
-                <span>1</span>
-                <button><i class="fas fa-plus"></i></button>
-            </div>
-            <div class="item-price">$5.99</div>
+    @if (isLoading)
+    {
+        <ProductLoader />
+    }
+    else if (cart?.Items == null || !cart.Items.Any())
+    {
+        <div class="empty-cart">
+            <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" alt="Empty Cart" class="empty-cart-img" />
+            <h2>سلة المشتريات فارغة</h2>
+            <p>ابدأ التسوق الآن وأضف منتجاتك المفضلة إلى السلة.</p>
+            <a href="/" class="empty-cart-btn">العودة إلى الصفحة الرئيسية</a>
+        </div>
+    }
+    else
+    {
+        <div class="cart-items">
+            @foreach (var item in cart.Items)
+            {
+                <div class="cart-item">
+                    <div class="item-image">
+                        <img src="@item.ImageUrls.FirstOrDefault()" alt="@item.ProductName" />
+                    </div>
+                    <div class="item-info">
+                        <h4>@item.ProductName</h4>
+                        <p>@item.ProductDescription</p>
+                    </div>
+                    <div class="item-quantity">
+                        <button @onclick="() => UpdateQuantity(item.ProductId, -1)"><i class="fas fa-minus"></i></button>
+                        <span>@item.Quantity</span>
+                        <button @onclick="() => UpdateQuantity(item.ProductId, 1)"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div class="item-price">$@item.TotalPrice</div>
+                </div>
+            }         
         </div>
 
-        <div class="cart-item">
-            <div class="item-image">
-                <img src="https://i.imgur.com/z6E3zMN.png" alt="Pen">
+        <div class="cart-summary" style="margin-top: 2rem; text-align: center;">
+            <div style="background: #f9f9f9; border-radius: 10px; padding: 1.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.05); display: inline-block; text-align: left; min-width: 220px;">
+                <p style="margin: 0.5rem 0;"><strong>Subtotal:</strong> @cart.Subtotal EGP</p>
+                <p style="margin: 0.5rem 0;"><strong>Shipping:</strong> @cart.ShippingFee EGP</p>
+                <hr style="margin: 1rem 0;">
+                <p style="font-size: 1.1rem; color: #4CAF50; font-weight: bold;"><strong>Total:</strong> @cart.Total EGP</p>
             </div>
-            <div class="item-info">
-                <h4>Pen</h4>
-                <p>Blue ink ballpoint pen</p>
-            </div>
-            <div class="item-quantity">
-                <button><i class="fas fa-minus"></i></button>
-                <span>2</span>
-                <button><i class="fas fa-plus"></i></button>
-            </div>
-            <div class="item-price">$2.98</div>
         </div>
 
-    </div>
-
-    <div class="cart-summary" style="margin-top: 2rem; text-align: center;">
-        <div style="background: #f9f9f9; border-radius: 10px; padding: 1.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.05); display: inline-block; text-align: left; min-width: 220px;">
-            <p style="margin: 0.5rem 0;"><strong>Subtotal:</strong> $8.97</p>
-            <p style="margin: 0.5rem 0;"><strong>Shipping:</strong> $2.99</p>
-            <hr style="margin: 1rem 0;">
-            <p style="font-size: 1.1rem; color: #4CAF50; font-weight: bold;"><strong>Total:</strong> $11.96</p>
+        <div class="submit-order">
+            <button @onclick="SubmitOrderAsync">Submit Order</button>
         </div>
-    </div>
-
-
-    <div class="submit-order">
-        <button>Submit Order</button>
-    </div>
+    }
 </section>
+
+
+@code {
+    private CartDto? cart;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
+
+        if (!string.IsNullOrWhiteSpace(sessionId))
+        {
+            cart = await CartService.GetUserCartBySessionIdAsync(sessionId);
+        }
+
+        isLoading = false;
+    }
+
+    private async Task UpdateQuantity(Guid productId, int delta)
+    {
+        var sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
+
+        await CartService.UpdateItemQuantityAsync(productId, delta, sessionId);
+
+        cart = await CartService.GetUserCartBySessionIdAsync(sessionId); 
+        StateHasChanged();
+    }
+
+    private async Task SubmitOrderAsync()
+    {
+        var sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
+
+        var location = await LocationService.GetLocationAsync(sessionId);
+
+        if (location is not null)
+        {
+            Navigation.NavigateTo("/checkout");
+        }
+        else
+        {
+            Navigation.NavigateTo("/location");
+        }
+    }
+
+}

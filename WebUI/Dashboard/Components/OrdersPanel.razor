@@ -27,7 +27,7 @@
                     <div class="action-menu">
                         ⋮
                         <div class="dropdown">
-                            <a href="/Admin/Order/Details">View Order</a>
+                            <a href="@($"/Admin/Order/Details/{order.Id}")">View Order</a>
                             <button class="dropdown-action accept"
                                     @onclick="(e) => AcceptOrder(OrderStatus.Accepted, order.Id)"
                                     @onclick:stopPropagation="true">

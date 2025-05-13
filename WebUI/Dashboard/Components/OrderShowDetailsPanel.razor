@@ -1,29 +1,70 @@
-﻿<div class="order-card">
-    <h3>Items</h3>
-    <ul>
-        <li>Classic T-Shirt × 2</li>
-        <li>Denim Jacket × 1</li>
-        <li>Leather Boots × 1</li>
-    </ul>
-</div>
+﻿@inject IOrderAdminService OrderService
+@inject IJSRuntime JS
 
-<!-- Location/Shipping Card -->
-<div class="order-card">
-    <h3>Shipping Info</h3>
-    <p><strong>Name:</strong> John Doe</p>
-    <p><strong>Address:</strong> 123 Street, New York, NY</p>
-    <p><strong>Phone:</strong> +1 555-123-4567</p>
-    <p><strong>Delivery Date:</strong> April 7, 2025</p>
-</div>
-
-<!-- Total & Invoice Card -->
-<div class="order-card">
-    <h3>Order Summary</h3>
-    <p><strong>Order Date:</strong> April 3, 2025</p>
-    <p><strong>Status:</strong> <span class="status delivered">Delivered</span></p>
-    <p><strong>Delivery Method:</strong> Express</p>
-    <p><strong>Total:</strong> $129.97</p>
-    <div class="invoice-button">
-        <button>Download Invoice</button>
+@if (order is not null)
+{
+    <div class="order-card">
+        <h3>Items</h3>
+        <ul>
+            @foreach (var item in order.Items)
+            {
+                <li>@item.ProductName × @item.Quantity</li>
+            }
+        </ul>
     </div>
-</div>
+
+    <!-- Location/Shipping Card -->
+    <div class="order-card">
+        <h3>Shipping Info</h3>
+        <p><strong>Name:</strong> @(order.Location?.Name ?? "Unknown")</p>
+        <p><strong>Address:</strong> @(order.Location?.Address ?? "") @(order.Location?.StreetAddress ?? "")</p>
+        <p><strong>Phone:</strong> @(order.Location?.PhoneNumber1 ?? "N/A")</p>
+        <p><strong>Created Date:</strong> @order.CreatedAt.ToString("MMMM d, yyyy")</p>
+    </div>
+
+    <!-- Total & Invoice Card -->
+    <div class="order-card">
+        <h3>Order Summary</h3>
+        <p><strong>Order Date:</strong> @order.CreatedAt.ToString("MMMM d, yyyy")</p>
+        <p>
+            <strong>Status:</strong>
+            <span class="status @(order.OrderStatus.ToLower())">
+                @order.DeliveryStatus
+            </span>
+        </p>
+        <p><strong>Delivery Method:</strong> @order.PaymentStatus</p>
+        <p><strong>Total:</strong> $@order.Total EGP</p>
+        <div class="invoice-button">
+            <button class="btn btn-primary" @onclick="@(() => DownloadInvoice(order.Id))">
+                Download Invoice
+            </button>
+        </div>
+    </div>
+}
+else
+{
+    <p>Loading order...</p>
+}
+
+@code {
+    [Parameter]
+    public Guid OrderId { get; set; }
+    private OrderDto order = new();
+
+    protected override async Task OnInitializedAsync()
+    {        
+        await LoadOrderDetailsAsync(OrderId);
+    }
+
+    private async Task LoadOrderDetailsAsync(Guid orderId)
+    {
+        order = await OrderService.GetOrderByIdAsync(orderId);
+    }
+
+
+    private async Task DownloadInvoice(Guid id)
+    {
+        var url = $"https://localhost:7201/api/ordersadmin/orders/{id}/invoice";
+        await JS.InvokeVoidAsync("open", url, "_blank"); // opens the PDF in a new tab
+    }
+}
