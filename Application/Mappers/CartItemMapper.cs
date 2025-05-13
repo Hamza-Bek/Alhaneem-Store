@@ -1,26 +1,22 @@
 using Application.Dtos.Cart;
-using Application.Dtos.Product;
 using Domain.Models;
 
 namespace Application.Mappers;
 
 public static class CartItemMapper
 {
-    public static CartItemDto ToDto(this CartItem cart)
+    public static CartItemDto ToDto(this CartItem cartItem)
     {
         return new CartItemDto
         {
-            Quantity =  cart.Quantity,
-            ProductId = cart.ProductId
-        };
-    }
-
-    public static CartItem ToModel(this CartItemDto cart)
-    {
-        return new CartItem
-        {
-            Quantity =  cart.Quantity,
-            ProductId = cart.ProductId
+            Id = cartItem.Id,
+            Quantity = cartItem.Quantity,
+            Price = cartItem.Price,
+            TotalPrice = cartItem.TotalPrice,
+            ProductId = cartItem.ProductId,
+            ProductName = cartItem.Product.Name,
+            ProductDescription = cartItem.Product?.Description,
+            ImageUrls = cartItem.Product.Images?.Select(i => i.ImageUrl).ToList() ?? new()
         };
     }
 }
