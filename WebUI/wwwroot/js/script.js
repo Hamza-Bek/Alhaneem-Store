@@ -71,22 +71,30 @@ function setMarker(lat, lng, dotNetHelper) {
 }
 
 
-window.showToast = function (message, type) {
-    const toast = document.createElement("div");
-    toast.textContent = message;
-    toast.className = "blazor-toast " + type;
+//window.showToast = function (message, type) {
+//    const toast = document.createElement("div");
+//    toast.textContent = message;
+//    toast.className = "blazor-toast " + type;
 
-    document.body.appendChild(toast);
+//    const container = document.getElementById("toast-container");
+//    if (!container) {
+//        console.error("Toast container not found.");
+//        return;
+//    }
 
-    setTimeout(() => {
-        toast.classList.add("show");
-    }, 100);
+//    container.appendChild(toast);
 
-    setTimeout(() => {
-        toast.classList.remove("show");
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-};
+//    // Show the toast with animation
+//    setTimeout(() => {
+//        toast.classList.add("show");
+//    }, 100);
+
+//    // Auto-hide the toast
+//    setTimeout(() => {
+//        toast.classList.remove("show");
+//        setTimeout(() => toast.remove(), 300);
+//    }, 3000);
+//};
 
 window.showRejectConfirmation = async function () {
     return new Promise((resolve) => {
@@ -131,3 +139,4 @@ window.showRejectConfirmation = async function () {
         };
     });
 }
+
