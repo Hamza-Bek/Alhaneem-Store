@@ -5,7 +5,7 @@ namespace Domain.Models;
 public class Product : EntityBase
 {
     //Basic Information
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public bool Published { get; set; }
     
