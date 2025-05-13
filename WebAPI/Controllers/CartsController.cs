@@ -9,7 +9,7 @@ namespace WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CartsController : Controller
+public class CartsController : ControllerBase
 {
    private readonly ICartRepository _cartRepository;
 

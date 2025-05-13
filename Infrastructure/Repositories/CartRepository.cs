@@ -29,6 +29,7 @@ public class CartRepository : ICartRepository
         var cart = await _context.Carts
             .Include(c => c.Items)
             .ThenInclude(i => i.Product)
+            .ThenInclude(i => i.Images)
             .FirstOrDefaultAsync(c => c.SessionId == sessionId);
 
         return cart;
@@ -65,99 +66,91 @@ public class CartRepository : ICartRepository
         return cart;
     }
 
-    public async Task<Cart> AddItemToUserCartAsync(Guid productId, int quantity, string sessionId)
+    public async Task<Cart> UpdateItemQuantityAsync(Guid productId, int delta, string sessionId)
     {
         if (string.IsNullOrWhiteSpace(sessionId))
-            throw new ArgumentException("Session ID must be provided.", nameof(sessionId));
+            throw new ArgumentException("Session ID is required.");
 
-        if (quantity <= 0)
-            throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
+        if (delta == 0)
+            throw new ArgumentException("Quantity delta cannot be zero.");
 
-        var userCart = await _context.Carts
-            .Include(c => c.Items)
-            .FirstOrDefaultAsync(c => c.SessionId == sessionId);
-        
-        if (userCart == null)
-            throw new InvalidOperationException("Cart not found for the given session.");
-
-        var product = await _context.Products.FirstOrDefaultAsync(i => i.Id == productId);
-        if (product == null)
-            throw new InvalidOperationException("Product not found.");
-        
-        var existingCartItem = userCart.Items.FirstOrDefault(i => i.ProductId == productId);
-
-        if (existingCartItem != null)
-        {
-            existingCartItem.Quantity += quantity;
-            existingCartItem.TotalPrice = existingCartItem.Price * existingCartItem.Quantity;
-            _context.CartItems.Update(existingCartItem);
-        }
-        else
-        {
-            var newCartItem = new CartItem
-            {
-                Id = Guid.NewGuid(),
-                CartId = userCart.Id,
-                ProductId = product.Id,
-                Quantity = quantity,
-                Price = product.Price,
-                TotalPrice = product.Price * quantity
-            };
-
-            await _context.CartItems.AddAsync(newCartItem);
-        }
-        
-        userCart.Subtotal = userCart.Items
-            .Where(i => i.ProductId != productId)
-            .Sum(i => i.TotalPrice);
-        
-        userCart.Subtotal += (existingCartItem?.TotalPrice ?? (product.Price * quantity));
-        userCart.Total = userCart.Subtotal + userCart.ShippingFee;
-        
-        _context.Carts.Update(userCart);
-        await _context.SaveChangesAsync();
-
-        return await _context.Carts
+        // Get cart with items included
+        var cart = await _context.Carts
             .Include(c => c.Items)
             .ThenInclude(i => i.Product)
-            .FirstOrDefaultAsync(c => c.Id == userCart.Id);
+            .FirstOrDefaultAsync(c => c.SessionId == sessionId);
+
+        if (cart == null)
+            throw new InvalidOperationException("Cart not found.");
+
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
+        if (product == null)
+            throw new InvalidOperationException("Product not found.");
+
+        var cartItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+
+        // Adding new item
+        if (cartItem == null && delta > 0)
+        {
+            cartItem = new CartItem
+            {
+                Id = Guid.NewGuid(),
+                CartId = cart.Id,
+                ProductId = product.Id,
+                Quantity = delta,
+                Price = product.Price,
+                TotalPrice = product.Price * delta
+            };
+
+            await _context.CartItems.AddAsync(cartItem);            
+        }
+        // Modifying existing item
+        else if (cartItem != null)
+        {
+            cartItem.Quantity += delta;
+
+            if (cartItem.Quantity <= 0)
+            {
+                _context.CartItems.Remove(cartItem);                
+            }
+            else
+            {
+                cartItem.TotalPrice = cartItem.Quantity * cartItem.Price;
+                _context.CartItems.Update(cartItem);
+            }
+        }
+
+        // Recalculate cart totals using in-memory list
+        cart.Subtotal = cart.Items.Sum(i => i.Quantity * i.Price);
+        cart.Total = cart.Subtotal + cart.ShippingFee - cart.DiscountAmount;
+
+        _context.Carts.Update(cart);
+        await _context.SaveChangesAsync();
+
+        return cart;
     }
 
-    public async Task<Cart> RemoveItemFromUserCartAsync(Guid productId, string sessionId)
+    public async Task<Cart> RemoveItemCompletelyAsync(Guid productId, string sessionId)
     {
         if (string.IsNullOrWhiteSpace(sessionId))
             throw new ArgumentException("Session ID is required.");
 
         var cart = await _context.Carts
             .Include(c => c.Items)
-            .FirstOrDefaultAsync(c => c.SessionId == sessionId && !c.IsCheckedOut);
+            .FirstOrDefaultAsync(c => c.SessionId == sessionId);
 
         if (cart == null)
             throw new InvalidOperationException("Cart not found.");
 
-        var cartItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
-        if (cartItem == null)
-            throw new InvalidOperationException("Cart item not found for given product.");
+        var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+        if (item == null)
+            throw new InvalidOperationException("Item not found in cart.");
 
-        if (cartItem.Quantity > 1)
-        {
-            cartItem.Quantity -= 1;
-            cartItem.TotalPrice = cartItem.Quantity * cartItem.Price;
-            _context.CartItems.Update(cartItem);
-        }
-        else
-        {
-            _context.CartItems.Remove(cartItem);
-        }
-
+        _context.CartItems.Remove(item);
         await _context.SaveChangesAsync();
 
         // Recalculate totals
-        var remainingItems = await _context.CartItems
-            .Where(i => i.CartId == cart.Id)
-            .ToListAsync();
-
-        cart.Subtotal = remainingItems.Sum(i => i.TotalPrice);
+        cart.Subtotal = cart.Items.Where(i => i.ProductId != productId).Sum(i => i.TotalPrice);
         cart.Total = cart.Subtotal + cart.ShippingFee - cart.DiscountAmount;
 
         _context.Carts.Update(cart);
@@ -169,34 +162,34 @@ public class CartRepository : ICartRepository
             .FirstOrDefaultAsync(c => c.Id == cart.Id);
     }
 
-
     public async Task<bool> ClearUserCartAsync()
     {
-        Cart userCart;
-        
-        if (_userIdentity.Id != Guid.Empty)
-        {
-            userCart = await _context.Carts
-                .Include(c => c.Items)
-                .FirstOrDefaultAsync(c => c.UserId == _userIdentity.Id);
-        }
-        else
-        {
-            var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
-        
-            if (string.IsNullOrEmpty(guestSessionId))
-                return false;
+        //Cart userCart;
 
-            userCart = await _context.Carts
-                .Include(c => c.Items)
-                .FirstOrDefaultAsync(c => c.SessionId == guestSessionId);
-        }
-        
-        if (userCart is null)
-            return false;
-        
-        _context.CartItems.RemoveRange(userCart.Items);
-        await _context.SaveChangesAsync();
-        return true;
+        //if (_userIdentity.Id != Guid.Empty)
+        //{
+        //    userCart = await _context.Carts
+        //        .Include(c => c.Items)
+        //        .FirstOrDefaultAsync(c => c.UserId == _userIdentity.Id);
+        //}
+        //else
+        //{
+        //    var guestSessionId = _httpContextAccessor.HttpContext?.Request.Cookies["GuestSessionId"];
+
+        //    if (string.IsNullOrEmpty(guestSessionId))
+        //        return false;
+
+        //    userCart = await _context.Carts
+        //        .Include(c => c.Items)
+        //        .FirstOrDefaultAsync(c => c.SessionId == guestSessionId);
+        //}
+
+        //if (userCart is null)
+        //    return false;
+
+        //_context.CartItems.RemoveRange(userCart.Items);
+        //await _context.SaveChangesAsync();
+        //return true;
+        throw new Exception();
     }
 }

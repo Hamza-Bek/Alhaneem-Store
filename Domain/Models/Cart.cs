@@ -12,11 +12,7 @@ public class Cart : EntityBase
     public bool IsCheckedOut { get; set; }
 
     // Timestamp
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
-    //Foreign Keys & Navigation Properties
-    public Guid? UserId { get; set; }
-    public virtual ApplicationUser User { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;     
     public virtual ICollection<CartItem> Items { get; set; } = new List<CartItem>();
     
     //Guests
