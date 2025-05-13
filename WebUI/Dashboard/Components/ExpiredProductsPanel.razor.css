@@ -45,6 +45,22 @@
     vertical-align: middle;
 }
 
+.product-card li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.product-name {
+    direction: rtl; /* Optional: if you want Arabic names to align naturally */
+}
+
+.product-price {
+    direction: ltr;
+    white-space: nowrap;
+}
+
+
 @media screen and (min-width: 768px) {
     .product-card {
         flex: 1 1 calc(50% - 20px);

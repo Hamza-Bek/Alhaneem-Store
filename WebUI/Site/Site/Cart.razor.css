@@ -172,3 +172,56 @@ footer a {
             color: #4CAF50;
             font-weight: bold;
         }
+.empty-cart {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: #444;
+}
+
+.empty-cart-img {
+    width: 150px;
+    height: auto;
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+}
+
+.empty-cart h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-cart p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    color: #666;
+}
+
+.empty-cart-btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #45a049;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+    .empty-cart-btn:hover {
+        background-color: #36873b;
+    }
+
+/* Optional mobile responsiveness */
+@media (max-width: 600px) {
+    .empty-cart h2 {
+        font-size: 1.4rem;
+    }
+
+    .empty-cart p {
+        font-size: 0.9rem;
+    }
+
+    .empty-cart-img {
+        width: 120px;
+    }
+}

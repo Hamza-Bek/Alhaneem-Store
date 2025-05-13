@@ -2,6 +2,11 @@
     margin: 50px 0;
     text-align: center;
     font-family: sans-serif;
+    
+    gap: 2rem;
+    padding: 0rem 1rem;
+    text-align: center;
+    margin-bottom: 5rem;
 }
 
 
