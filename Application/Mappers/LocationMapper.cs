@@ -8,7 +8,7 @@ public static class LocationMapper
     public static LocationDto ToDto(this Location location)
     {
         return new LocationDto
-        {
+        {           
             Name = location.Name,
             StreetAddress = location.StreetAddress,
             City = location.City,

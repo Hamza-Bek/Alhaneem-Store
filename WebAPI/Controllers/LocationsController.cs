@@ -17,17 +17,24 @@ public class LocationsController : ControllerBase
     {
         _locationRepository = locationRepository;
     }
-    
-    [HttpGet()]
-    public async Task<IActionResult> GetLocation([FromQuery] string sessionId)
+
+    [HttpGet("{sessionId}")]
+    public async Task<IActionResult> GetLocation(string sessionId)
     {
         var response = await _locationRepository.GetLocationBySessionAsync(sessionId);
-        
-        return Ok(new ApiResponse<Location>(
+
+        if (response == null)
+            return NotFound(new ApiResponse<string>(
+                "Location not found",
+                false,
+                null
+            ));
+
+        return Ok(new ApiResponse<LocationDto>(
             "Location retrieved successfully",
             true,
-            response
-            ));
+            response.ToDto()
+        ));
     }
 
     [HttpPost]

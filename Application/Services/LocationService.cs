@@ -1,5 +1,7 @@
-using System.Net.Http.Json;
+using Application.Dtos.Cart;
 using Application.Dtos.Order;
+using Application.Responses;
+using System.Net.Http.Json;
 
 namespace Application.Services;
 
@@ -11,10 +13,31 @@ public class LocationService : ILocationService
     {
         _httpClient = httpClient;
     }
-    
+
     public async Task<LocationDto?> GetLocationAsync(string sessionId)
     {
-        var response = await _httpClient.GetAsync($"api/locations/{sessionId}");
+        if (string.IsNullOrWhiteSpace(sessionId))
+            return null;
+
+        try
+        {
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<LocationDto>>($"api/locations/{sessionId}");
+            return response?.Data;
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"[LocationService] Error fetching location: {ex.Message}");
+            return null;
+        }
+    }
+
+
+
+    public async Task<LocationDto?> AddLocationAsync(LocationDto location, string sessionId)
+    {
+        location.SessionId = sessionId;
+
+        var response = await _httpClient.PostAsJsonAsync("api/locations", location);
         if (response.IsSuccessStatusCode)
         {
             return await response.Content.ReadFromJsonAsync<LocationDto>();
@@ -23,25 +46,6 @@ public class LocationService : ILocationService
         return null;
     }
 
-
-    public async Task<LocationDto> AddLocationAsync(LocationDto location, string sessionId)
-    {
-        var payload = new
-        {
-            LocationDto = location,
-            SessionId = sessionId
-        };
-        
-        var response = await _httpClient.PostAsJsonAsync("api/locations", payload);
-        if (response.IsSuccessStatusCode)
-        {
-            var locationResponse = await response.Content.ReadFromJsonAsync<LocationDto>();
-            return locationResponse;
-        }
-
-        return null;
-    }
-    
     public async Task<LocationDto?> UpdateLocationAsync(LocationDto location, string sessionId)
     {
         var payload = new
