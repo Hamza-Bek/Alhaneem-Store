@@ -4,6 +4,7 @@ using Application.Mappers;
 using Application.Responses;
 using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
+using QuestPDF.Fluent;
 
 namespace WebAPI.Controller;
 
@@ -76,4 +77,17 @@ public class OrdersAdminController : ControllerBase
             response
         ));
     }
+
+    [HttpGet("orders/{id}/invoice")]
+    public async Task<IActionResult> DownloadInvoice([FromRoute]Guid id)
+    {
+        var order = await _orderAdminRepository.GetOrderByIdAsync(id); // Replace with your service
+        if (order == null) return NotFound();
+
+        var document = new OrderInvoiceDocument(order.ToDto());
+        var pdfBytes = document.GeneratePdf();
+
+        return File(pdfBytes, "application/pdf", $"Invoice_{order.OrderNumber}.pdf");
+    }
+
 }
