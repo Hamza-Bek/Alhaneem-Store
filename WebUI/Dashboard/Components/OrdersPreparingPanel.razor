@@ -20,7 +20,7 @@
             <div class="order-row">
                 <div data-label="ID">@order.OrderNumber</div>
                 <div data-label="Customer">@(order.Location?.Name ?? "Guest")</div>
-                <div data-label="Total">@order.Subtotal EGP</div>
+                <div data-label="Total">@order.Total EGP</div>
                 <div data-label="Status" class="status pending">@order.OrderStatus</div>
                 <div data-label="Date">@order.CreatedAt.ToString("hh:mm tt, dddd, MMMM yyyy")</div>
                 <div data-label="Action" class="action-cell">
@@ -69,7 +69,7 @@
     private async Task OrderReady(DeliveryStatus status, Guid orderId)
     {
         await OrderAdminService.UpdateDeliveryStatusAsync(orderId, status);
-        await JS.InvokeVoidAsync("showToast", "Order is ready");
+        await JS.InvokeVoidAsync("showToast", "Order is ready", "success");
 
         orders = orders.Where(o => o.Id != orderId).ToList();
         StateHasChanged();

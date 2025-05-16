@@ -22,19 +22,30 @@ public class OrderService : IOrderService
 
     public async Task<bool> SubmitOrderAsync(string sessionId)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/orders/submit",new { sessionId });
+        var response = await _httpClient.PostAsJsonAsync("api/orders/submit", new { sessionId });
 
         if (response.IsSuccessStatusCode)
             return true;
 
         var content = await response.Content.ReadAsStringAsync();
 
-        // Just log or inspect without binding to a typed model
-        using var doc = JsonDocument.Parse(content);
-        if (doc.RootElement.TryGetProperty("errorMessage", out var messageProp))
+        try
         {
-            var message = messageProp.GetString();
-            Console.WriteLine("Order failed: " + message);
+            using var doc = JsonDocument.Parse(content);
+            if (doc.RootElement.TryGetProperty("errorMessage", out var messageProp))
+            {
+                var message = messageProp.GetString();
+                Console.WriteLine("Order failed: " + message);
+            }
+            else
+            {
+                Console.WriteLine("Order failed with unknown JSON: " + content);
+            }
+        }
+        catch (JsonException)
+        {
+            // Not a JSON response
+            Console.WriteLine("Order failed with plain text: " + content);
         }
 
         return false;

@@ -20,7 +20,7 @@
             <div class="order-row">
                 <div data-label="ID">@order.OrderNumber</div>
                 <div data-label="Customer">@(order.Location?.Name ?? "Guest")</div>
-                <div data-label="Total">@order.Subtotal EGP</div>
+                <div data-label="Total">@order.Total EGP</div>
                 <div data-label="Status" class="status pending">@order.OrderStatus</div>
                 <div data-label="Date">@order.CreatedAt.ToString("hh:mm tt, dddd, MMMM yyyy")</div>
                 <div data-label="Action" class="action-cell">
@@ -58,11 +58,6 @@
     private bool dataLoaded = false;
     private bool _jsInitialized = false;
 
-    private async Task ConsoleLog()
-    {
-        await JS.InvokeVoidAsync("console.log", "Hello");
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!_jsInitialized && dataLoaded)
@@ -85,7 +80,7 @@
     private async Task AcceptOrder(OrderStatus orderStatus, Guid orderId)
     {
         await OrderAdminService.UpdateOrderStatusAsync(orderId , orderStatus);
-        await JS.InvokeVoidAsync("showToast", "Order accepted successfully!");
+        await JS.InvokeVoidAsync("showToast", "Order accepted successfully!", "success");
 
         orders = orders.Where(o => o.Id != orderId).ToList();
         StateHasChanged();

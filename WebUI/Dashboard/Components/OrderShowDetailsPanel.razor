@@ -1,5 +1,6 @@
 ﻿@inject IOrderAdminService OrderService
 @inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 
 @if (order is not null)
 {
@@ -8,7 +9,7 @@
         <ul>
             @foreach (var item in order.Items)
             {
-                <li>@item.ProductName × @item.Quantity</li>
+                <li>@item.ProductName × @item.Quantity  <i class="fa-solid fa-eye" @onclick="(() => NavigateToProductView(item.ProductId))"></i></li>
             }
         </ul>
     </div>
@@ -66,5 +67,10 @@ else
     {
         var url = $"https://localhost:7201/api/ordersadmin/orders/{id}/invoice";
         await JS.InvokeVoidAsync("open", url, "_blank"); // opens the PDF in a new tab
+    }
+
+    private void NavigateToProductView(Guid productId)
+    {
+        NavigationManager.NavigateTo($"/Product/View/{productId}");
     }
 }
