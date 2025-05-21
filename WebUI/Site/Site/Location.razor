@@ -25,28 +25,29 @@
 
         <div class="full-width">
             <label for="address1">العنوان</label>
-            <input type="text" id="address1" name="address1" placeholder="العنوان" @bind="locationModel.Address" />
+            <p class="delivery-note">🚚 حالياً نقوم بالتوصيل فقط إلى العبور، القليوبية</p>
+            <input type="text" id="address1" name="address1" placeholder="العنوان / الحي" @bind="locationModel.Address" />
         </div>
         <div class="full-width">
             <input type="text" id="address2" name="address2" placeholder="اسم الشارع" @bind="locationModel.StreetAddress" />
         </div>
 
-        <div>
-            <input type="text" id="city" name="city" placeholder="المدينة" @bind="locationModel.City" />
+        <div class="readonly-field">
+            <label for="city">المدينة المتاحة:</label>
+            <input type="text" id="city" name="city" value="العبور" readonly />
         </div>
-        <div>
-            <input list="states" type="text" id="state" name="state" placeholder="المحافظة / المنطقة" @bind="locationModel.Landmark" />
-            <datalist id="states">
-                <option value="القاهرة" />
-            </datalist>
-        </div>
+
+        <div class="readonly-field">
+            <label for="state">المحافظة / المنطقة:</label>
+            <input type="text" id="state" name="state" value="القليوبية" readonly />
+        </div>    
 
         <div>
             <input type="text" id="building" name="building" placeholder="البناء" @bind="locationModel.Building" />
         </div>
         <div>
             <input type="text" id="floor" name="floor" placeholder="الطابق" @bind="locationModel.Floor" />
-        </div>
+        </div>        
 
         <div class="full-width">
             <label for="interest">حدد موقعك بالتفصيل!</label>
@@ -69,8 +70,8 @@
 
 @code {
     private LocationDto locationModel = new();
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
+    public decimal Latitude { get; set; }
+    public decimal Longitude { get; set; }
     private string state = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -87,7 +88,7 @@
     }
 
     [JSInvokable]
-    public void SetLocation(double lat, double lng)
+    public void SetLocation(decimal lat, decimal lng)
     {
         Latitude = lat;
         Longitude = lng;
@@ -98,7 +99,9 @@
     {
         var sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
         locationModel.SessionId = sessionId;
-        locationModel.City = state; // optional bind
+        locationModel.City = state; 
+        locationModel.Latitude = Latitude;
+        locationModel.Longitude = Longitude;
 
         var result = await LocationService.AddLocationAsync(locationModel, sessionId);
 

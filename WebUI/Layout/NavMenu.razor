@@ -1,15 +1,19 @@
 ﻿<header>
     <div class="navbar-container">
-        <div class="logo">School Hub</div>
+        <div class="logo">الهانم السورية</div>
 
         <nav class="navbar-items">
-            <a href="/">Home</a>
-            <a href="/products">Products</a>
+            <a href="/">الرئيسية</a>
+            <a href="/products">المنتجات</a>            
             @* <a href="#contact">Contact</a> *@
         </nav>
 
-        <div class="cart-icon">
-            <a href="/cart">🛒</a>
+        <div class="cart-actions">
+            <a href="/cart" class="cart-icon">🛒</a>
+            <a href="/my-orders" class="my-orders-btn">
+                <span>📦 طلباتي</span>
+            </a>
+            <a class="menu__item highlighted products" href="/products"><span>🛍️ المنتجات</span></a>
         </div>
 
         <div class="mobile-nav-actions">
@@ -24,7 +28,8 @@
                 <ul class="menu__box">
                     <li><a class="menu__item" href="/">Home</a></li>
                     <li><a class="menu__item" href="/Products">Products</a></li>
-                    <li><a class="menu__item highlighted" href="/cart"><p>My Cart 🛒</p></a></li>
+                    <li><a class="menu__item" href="/my-orders"><span class="highlighted">طلباتي 📦</span></a></li>
+                    <li><a class="menu__item highlighted" href="/cart"><p>سلتي 🛒</p></a></li>
                 </ul>
             </div>
         </div>

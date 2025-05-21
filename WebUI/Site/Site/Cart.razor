@@ -4,6 +4,7 @@
 @using WebUI.Site.Components
 @inject IJSRuntime JS
 @inject ICartService CartService
+@inject IProductService ProductService
 @inject IOrderService OrderService
 @inject ILocationService LocationService
 @inject NavigationManager Navigation
@@ -81,9 +82,31 @@
     {
         var sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
 
-        await CartService.UpdateItemQuantityAsync(productId, delta, sessionId);
+        var product = await ProductService.GetProductById(productId);
+        if (product == null)
+        {
+            await JS.InvokeVoidAsync("showToast", "This product does not exist", "error");
+            return;
+        }
 
-        cart = await CartService.GetUserCartBySessionIdAsync(sessionId); 
+        var cartItem = cart?.Items?.FirstOrDefault(i => i.ProductId == productId);
+        int currentQuantity = cartItem?.Quantity ?? 0;
+        int newQuantity = currentQuantity + delta;
+
+        if (newQuantity < 1)
+        {
+            await JS.InvokeVoidAsync("showToast", "Quantity cannot be less than 1", "warning");
+            return;
+        }
+
+        if (newQuantity > product.Stock)
+        {
+            await JS.InvokeVoidAsync("showToast", $"Cannot add more than {product.Stock} items", "warning");
+            return;
+        }
+
+        await CartService.UpdateItemQuantityAsync(productId, delta, sessionId);
+        cart = await CartService.GetUserCartBySessionIdAsync(sessionId);
         StateHasChanged();
     }
 
