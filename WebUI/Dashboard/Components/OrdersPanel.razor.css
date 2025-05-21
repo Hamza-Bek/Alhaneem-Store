@@ -251,3 +251,113 @@
             transform: scale(1.02);
             box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
         }
+
+.empty-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+    .empty-animation svg {
+        width: 300px;
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 1rem;
+    }
+.empty-text {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+svg#freepik_stories-empty:not(.animated) .animable {
+    opacity: 0;
+}
+
+svg#freepik_stories-empty.animated #freepik--background-complete--inject-64 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) slideDown;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-empty.animated #freepik--Floor--inject-64 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) lightSpeedLeft;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-empty.animated #freepik--Character--inject-64 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) slideLeft;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-empty.animated #freepik--Plant--inject-64 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) zoomIn;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-empty.animated #freepik--Boxes--inject-64 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) zoomIn;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-empty.animated #freepik--speech-bubble--inject-64 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) slideLeft;
+    animation-delay: 0s;
+}
+
+@keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes lightSpeedLeft {
+    from {
+        transform: translate3d(-50%, 0, 0) skewX(20deg);
+        opacity: 0;
+    }
+
+    60% {
+        transform: skewX(-10deg);
+        opacity: 1;
+    }
+
+    80% {
+        transform: skewX(2deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes slideLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes zoomIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

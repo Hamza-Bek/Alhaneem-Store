@@ -238,4 +238,88 @@
             transform: scale(1.02);
             box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
         }
- 
+
+.empty-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+    .empty-animation svg {
+        width: 300px;
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 1rem;
+    }
+
+.empty-text {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+svg#freepik_stories-take-away:not(.animated) .animable {
+    opacity: 0;
+}
+
+svg#freepik_stories-take-away.animated #freepik--background-complete--inject-2 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) zoomIn;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-take-away.animated #freepik--Shape--inject-2 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) slideUp;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-take-away.animated #freepik--Route--inject-2 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) zoomOut;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-take-away.animated #freepik--Character--inject-2 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) slideUp;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-take-away.animated #freepik--speed-line--inject-2 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) zoomIn;
+    animation-delay: 0s;
+}
+
+@keyframes zoomIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: inherit;
+    }
+}
+
+@keyframes zoomOut {
+    0% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

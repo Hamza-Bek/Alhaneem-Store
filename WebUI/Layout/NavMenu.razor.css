@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --black-color: #969595;
     --gold-color: #FFA62B;
 }
@@ -46,9 +46,8 @@ header {
 }
 
     .navbar-items a {
-        text-decoration: none;
-        color: #333;
-        font-weight: 500;
+        text-decoration: none;        
+        font-weight: 900;
         position: relative;
     }
 
@@ -172,6 +171,23 @@ header {
     gap: 1rem;
 }
 
+.cart-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Space between 🛒 and طلباتي */
+}
+
+/* Cart Icon Styling */
+.cart-icon {
+    font-size: 24px;
+    text-decoration: none;
+    color: #333;
+    transition: transform 0.2s ease;
+}
+
+    .cart-icon:hover {
+        transform: scale(1.1);
+    }
 /* Mobile cart icon style */
 .mobile-cart-icon {
     font-size: 1.5rem;
@@ -179,11 +195,48 @@ header {
     text-decoration: none;
 }
 
+.my-orders-btn {
+    display: inline-block;
+    background: #4caf50; /* Soft blue gradient */
+    color: white;
+    font-weight: 1000;
+    padding: 8px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+    transition: all 0.3s ease;
+    margin-left: 1rem;
+}
 
+    .my-orders-btn:hover {
+        background: #4ac44e;
+        box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+        transform: translateY(-2px);
+    }
+
+/* 📱 Mobile Version Styling */
+.my-orders-mobile span {
+    background-color: #3b82f6;
+    color: #fff;
+    padding: 10px 16px;
+    display: block;
+    border-radius: 10px;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+a.menu__item.highlighted.products{
+    display:none;
+}
 /* Responsive settings */
 @media (max-width: 680px) {
     .navbar-items, .cart-icon {
         display: none;
+    }
+
+    .my-orders-btn {
+        display: none !important;
     }
 
     .hamburger-menu {
@@ -195,6 +248,10 @@ header {
     .navbar-items,
     .cart-icon {
         display: none;
+    }
+
+    a.menu__item.highlighted.products {
+        display: block;
     }
 
     .mobile-nav-actions {

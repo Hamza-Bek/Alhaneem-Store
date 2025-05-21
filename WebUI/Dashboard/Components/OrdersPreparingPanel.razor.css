@@ -238,4 +238,108 @@
             transform: scale(1.02);
             box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
         }
- 
+
+
+.empty-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+    .empty-animation svg {
+        width: 300px;
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 1rem;
+    }
+
+.empty-text {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+svg#freepik_stories-order-ahead:not(.animated) .animable {
+    opacity: 0;
+}
+
+svg#freepik_stories-order-ahead.animated #freepik--background-complete--inject-89 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) slideLeft;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-order-ahead.animated #freepik--Shadow--inject-89 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) lightSpeedLeft;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-order-ahead.animated #freepik--Plant--inject-89 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) slideUp;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-order-ahead.animated #freepik--Device--inject-89 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) fadeIn;
+    animation-delay: 0s;
+}
+
+svg#freepik_stories-order-ahead.animated #freepik--Character--inject-89 {
+    animation: 1s 1 forwards cubic-bezier(.36,-0.01,.5,1.38) lightSpeedLeft;
+    animation-delay: 0s;
+}
+
+@keyframes slideLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes lightSpeedLeft {
+    from {
+        transform: translate3d(-50%, 0, 0) skewX(20deg);
+        opacity: 0;
+    }
+
+    60% {
+        transform: skewX(-10deg);
+        opacity: 1;
+    }
+
+    80% {
+        transform: skewX(2deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes slideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: inherit;
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}

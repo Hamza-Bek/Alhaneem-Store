@@ -20,3 +20,29 @@
         transform: translateY(-50%);
         color: #aaa;
     }
+   
+
+.category-filter {
+    display: flex;
+    justify-content:center;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.category-btn {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    background-color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    white-space: nowrap;
+}
+
+    .category-btn.active {
+        background-color: #4caf50;
+        color: white;
+        border-color: #348737;
+    }

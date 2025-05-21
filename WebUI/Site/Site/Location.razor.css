@@ -79,6 +79,28 @@ button {
         background: #45a049;
     }
 
+.readonly-field input[readonly] {
+    background-color: #f3f3f3;
+    color: #666;
+    border: 1px solid #ccc;
+    cursor: not-allowed;
+    font-style: italic;
+    padding: 0.6rem;
+    border-radius: 6px;
+}
+
+.delivery-note {
+    margin-top: 1rem;
+    color: #d32f2f;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    text-align: right;
+}
+
+
 @media (max-width: 600px) {
     form {
         grid-template-columns: 1fr;
