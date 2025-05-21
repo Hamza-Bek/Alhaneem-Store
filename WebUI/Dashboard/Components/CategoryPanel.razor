@@ -1,14 +1,59 @@
-﻿<h2>Add Category</h2>
-<form>
+﻿@inject IProductAdminService AdminService
+@inject IJSRuntime JS
+
+<h2>Add Category</h2>
+
+<form @onsubmit="HandleSubmit">
     <div class="form-group">
         <label for="categoryName">Name</label>
-        <input type="text" id="categoryName" name="categoryName" placeholder="Enter category name" required />
-    </div>
-
-    <div class="input-container">
-        <label for="picture">Picture</label>
-        <input type="file" id="picture" />
+        <input type="text" id="categoryName" @bind="categoryName" placeholder="Enter category name" required />
     </div>
 
     <button type="submit">Create Category</button>
 </form>
+
+    @* <div class="input-container"> *@
+    @*     <label for="picture">Picture</label> *@
+    @*     <input type="file" id="picture" /> *@
+    @* </div> *@
+
+@code {
+    [Parameter]
+    public EventCallback OnCategoryAdded { get; set; }
+
+    private string categoryName = string.Empty;
+    private bool isSubmitting = false;
+
+    private async Task HandleSubmit()
+    {
+        isSubmitting = true;
+
+        if (string.IsNullOrWhiteSpace(categoryName))
+        {
+            await JS.InvokeVoidAsync("alert", "Please enter a category name.");
+            isSubmitting = false;
+            return;
+        }
+
+        var categoryDto = new CategoryDto
+            {
+                Id = Guid.NewGuid(),
+                Name = categoryName
+            };
+
+        var result = await AdminService.CreateCategoryAsync(categoryDto);
+
+        if (result)
+        {
+            await JS.InvokeVoidAsync("showToast", "Category created successfully", "success");
+            categoryName = string.Empty;
+            await OnCategoryAdded.InvokeAsync();
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("showToast", "Failed to create category", "error");
+        }
+
+        isSubmitting = false;
+    }
+}

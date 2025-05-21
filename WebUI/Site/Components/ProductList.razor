@@ -7,11 +7,11 @@
 <div class="product-list">
     @if (products == null)
     {
-        <p>Loading products...</p>
+      <ProductLoader />      
     }
     else if (!products.Any())
     {
-        <p>No products found.</p>
+        <ProductLoader />
     }
     else
     {
@@ -34,10 +34,32 @@
     }
 </div>
 
-@code {
-    private List<PublicProductDto> products = new();    
+@code {    
+    private List<PublicProductDto> products = new();         // filtered
+    private List<PublicProductDto> allProducts = new();      // original unfiltered
+
     private string? sessionId;
 
+    [Parameter]
+    public string SearchTerm { get; set; } = string.Empty;
+
+    [Parameter]
+    public Guid? SelectedCategoryId { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ApplySearch();
+    }
+
+    private void ApplySearch()
+    {
+        products = allProducts
+            .Where(p =>
+                (string.IsNullOrWhiteSpace(SearchTerm) || p.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) &&
+                (!SelectedCategoryId.HasValue || p.CategoryId == SelectedCategoryId))
+            .ToList();
+    }
+  
     protected override async Task OnInitializedAsync()
     {
         sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
@@ -49,16 +71,36 @@
             await JS.InvokeVoidAsync("sessionHelper.setSessionId", sessionId);
         }
 
-        products = await ProductService.GetAllProductsAsync();
+        allProducts = await ProductService.GetAllProductsAsync();
+        ApplySearch(); // run it once after initial load
     }
 
     private async Task AddToCart(Guid productId)
     {
         if (sessionId == null) return;
 
+        // Get product details to know the stock
+        var product = await ProductService.GetProductById(productId);
+        if (product == null || product.Stock <= 0)
+        {
+            await JS.InvokeVoidAsync("showToast", "This product is out of stock", "error");
+            return;
+        }
+
+        // Get cart (or just cart items for the session)
+        var cart = await CartService.GetUserCartBySessionIdAsync(sessionId);
+        var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+        var currentQuantityInCart = existingItem?.Quantity ?? 0;
+
+        if (currentQuantityInCart >= product.Stock)
+        {
+            await JS.InvokeVoidAsync("showToast", "You’ve reached the maximum stock", "error");
+            return;
+        }
+
         var response = await CartService.UpdateItemQuantityAsync(productId, 1, sessionId);
 
-        await JS.InvokeVoidAsync("showToast", "Added Successfully", "success");
+        await JS.InvokeVoidAsync("showToast", "Product added to cart", "success");
     }
 
     private void NavigateToProductView(Guid productId)

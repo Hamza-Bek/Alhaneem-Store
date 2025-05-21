@@ -3,39 +3,97 @@
 @using WebUI.Site.Components
 @inject ICartService CartService
 @inject IProductService ProductService
+@inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 
 <div class="main">
-@if (product is not null)
-{
-    <div class="product-view-container">
-        <!-- LEFT: Gallery -->
-        <div class="product-gallery">
-            <div class="main-image">
-                <img id="mainProductImage" src="@product.ImageUrls.FirstOrDefault()" alt="Main Product Image">
+    @if (isLoading)
+    {
+     <ProductLoader />
+    }
+    @if (product is not null)
+    {
+        <div class="product-view-container">
+            <!-- LEFT: Gallery -->
+            <div class="product-gallery">
+                <div class="main-image">
+                    <img id="mainProductImage" src="@product.ImageUrls.FirstOrDefault()" alt="Main Product Image">
+                </div>
+                <div class="thumbnail-row">
+                    @foreach (var imageUrl in product.ImageUrls)
+                    {
+                        <img src="@imageUrl" alt="Thumbnail" class="thumbnail" onclick="changeImage(this)">
+                    }
+                </div>
             </div>
-            <div class="thumbnail-row">
-                @foreach (var imageUrl in product.ImageUrls)
+
+            <!-- RIGHT: Info -->
+            <div class="product-info">
+                <h1 class="product-title">@product.Name</h1>
+                <p class="product-description">@product.Description</p>
+                <p class="product-price">@product.Price EGP</p>
+
+                <p class="stock-status @(product.Stock > 0 ? "in-stock" : "out-of-stock")">
+                    @(product.Stock > 0 ? "In Stock ✅" : "Out of Stock ❌")
+                </p>
+                <p class="delivery-estimate">🚚 Delivery: Within 24 Hours</p>
+
+                <div class="sticky-actions">
+                    <div class="action-row">
+                        <div class="quantity-controls">
+                            <button type="button" class="qty-btn" @onclick="DecreaseQuantity" disabled="@(quantity <= 1)">−</button>
+
+                            <input type="number"
+                                   min="1"
+                                   max="@product.Stock"
+                                   value="@quantity"
+                                   @oninput="OnQuantityInputChanged"
+                                   class="qty-input" />
+
+                            <button type="button" class="qty-btn" @onclick="IncreaseQuantity" disabled="@(quantity >= product.Stock)">+</button>
+                        </div>
+
+                        <button class="add-to-cart-btn" @onclick="() => AddToCart(product.Id)">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                @* <ul class="product-features"> *@
+                @*     <li>✅ 100% Cotton</li> *@
+                @*     <li>🚚 Free delivery over 500 EGP</li> *@
+                @*     <li>♻️ Return within 7 days</li> *@
+                @* </ul> *@
+
+                <div class="share-icons">
+                    <span>Share:</span>
+                    <a href="https://wa.me/?text=Check%20this%20product:%20@product.Name" target="_blank">WhatsApp</a> •                    
+                </div>
+            </div>
+        </div>
+    }
+
+
+    @if (relatedProducts is not null && relatedProducts.Any())
+    {
+        <div class="related-products">
+            <h2>Other Products You May Like</h2>
+            <div class="related-products-list">
+                @foreach (var item in relatedProducts)
                 {
-                    <img src="@imageUrl" alt="Thumbnail" class="thumbnail" onclick="changeImage(this)">
+                    <div class="related-product-card">
+                        <img src="@item.ImageUrls.FirstOrDefault()" alt="@item.Name" />
+                        <p>@item.Name</p>
+                        <p>@item.Price EGP</p>
+                        <a class="view-btn" @onclick="(() => NavigateToProductView(item.Id))">View</a>
+                    </div>
                 }
             </div>
         </div>
-
-        <!-- RIGHT: Info -->
-        <div class="product-info">
-            <h1 class="product-title">@product.Name</h1>
-            <p class="product-description">
-                @product.Description
-            </p>
-            <p class="product-price">@product.Price EGP</p>
-             <button class="add-to-cart-btn" @onclick="() => AddToCart(product.Id)">
-                        Add to Cart
-                    </button>
-        </div>
-    </div>
-}
+    }
 </div>
+
+
 
 <script>
     function changeImage(thumb) {
@@ -65,6 +123,9 @@
     public Guid productId { get; set; }
     private string? sessionId;
     private PublicProductDto product;
+    private List<PublicProductDto> relatedProducts = new();
+    private bool isLoading = true;
+    private int quantity = 1;
 
     protected override async Task OnInitializedAsync()
     {        
@@ -75,18 +136,87 @@
             sessionId = Guid.NewGuid().ToString();
             await CartService.CreateCartAsync(sessionId);
             await JS.InvokeVoidAsync("sessionHelper.setSessionId", sessionId);
-        }
+        }        
 
-        product = await ProductService.GetProductById(productId);       
+        await LoadProductPageAsync();
     }
 
     private async Task AddToCart(Guid productId)
     {
-        if (sessionId is null)
+        if (sessionId == null || quantity < 1)
             return;
 
-        var response = await CartService.UpdateItemQuantityAsync(productId, 1, sessionId);
+        // Get product details to know the stock
+        var product = await ProductService.GetProductById(productId);
+        if (product == null || product.Stock <= 0)
+        {
+            await JS.InvokeVoidAsync("showToast", "This product is out of stock", "error");
+            return;
+        }
 
-        await JS.InvokeVoidAsync("showToast", "Added Successfully", "success");
+        // Get cart and check existing quantity
+        var cart = await CartService.GetUserCartBySessionIdAsync(sessionId);
+        var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+        var currentQuantityInCart = existingItem?.Quantity ?? 0;
+
+        if (currentQuantityInCart + quantity > product.Stock)
+        {
+            await JS.InvokeVoidAsync("showToast", "You’ve reached the maximum stock", "error");
+            return;
+        }
+
+        var response = await CartService.UpdateItemQuantityAsync(productId, quantity, sessionId);
+        await JS.InvokeVoidAsync("showToast", "Product added to cart", "success");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadProductPageAsync();
+    }
+
+    private async Task LoadProductPageAsync()
+    {
+        isLoading = true;  
+
+        product = await ProductService.GetProductById(productId);
+
+        var allProducts = await ProductService.GetAllProductsAsync();
+
+        relatedProducts = allProducts
+            .Where(p => p.Id != product.Id && p.CategoryId == product.CategoryId)
+            .OrderBy(_ => Guid.NewGuid())
+            .Take(4)
+            .ToList();
+
+        isLoading = false;
+    }
+
+    private void NavigateToProductView(Guid productId)
+    {
+        NavigationManager.NavigateTo($"/Product/View/{productId}");
+    }
+
+    private void IncreaseQuantity()
+    {
+        quantity++;
+    }
+
+    private void DecreaseQuantity()
+    {
+        if (quantity > 1)
+            quantity--;
+    }
+
+    private void OnQuantityInputChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int newQuantity))
+        {
+            if (newQuantity < 1)
+                quantity = 1;
+            else if (newQuantity > product.Stock)
+                quantity = product.Stock;
+            else
+                quantity = newQuantity;
+        }
     }
 }

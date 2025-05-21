@@ -40,7 +40,6 @@ else
     </div>
 }
 
-
 @code {
     [Parameter]
     public string SliderType { get; set; } = "newest";
@@ -88,6 +87,25 @@ else
     private async Task AddToCart(Guid productId)
     {
         if (sessionId == null) return;
+
+        // Get product details to know the stock
+        var product = await ProductService.GetProductById(productId);
+        if (product == null || product.Stock <= 0)
+        {
+            await JS.InvokeVoidAsync("showToast", "This product is out of stock", "error");
+            return;
+        }
+
+        // Get cart (or just cart items for the session)
+        var cart = await CartService.GetUserCartBySessionIdAsync(sessionId);
+        var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+        var currentQuantityInCart = existingItem?.Quantity ?? 0;
+
+        if (currentQuantityInCart >= product.Stock)
+        {
+            await JS.InvokeVoidAsync("showToast", "You’ve reached the maximum stock", "error");
+            return;
+        }
 
         var response = await CartService.UpdateItemQuantityAsync(productId, 1, sessionId);
 

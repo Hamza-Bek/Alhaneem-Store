@@ -1,9 +1,51 @@
 ﻿@page "/products"
 @using WebUI.Site.Components
+@inject IProductAdminService AdminService
 
 <section class="search-bar">
     <input type="text" placeholder="Search for products...">
     <i class="fa-solid fa-magnifying-glass"></i>
 </section>
 
-<ProductList />
+
+<section class="category-filter">
+    <button @onclick="() => SelectCategory(null)" class="@GetCategoryButtonClass(null)">All</button>
+    @foreach (var category in categories)
+    {
+        <button @onclick="() => SelectCategory(category.Id)" class="@GetCategoryButtonClass(category.Id)">
+            @category.Name
+        </button>
+    }
+</section>
+
+<ProductList SelectedCategoryId="selectedCategoryId" />
+
+@code {
+    private string searchTerm = string.Empty;
+    private Guid? selectedCategoryId = null;
+    private List<CategoryDto> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await AdminService.GetAllCategoriesAsync();
+    }
+
+    private void SelectCategory(Guid? categoryId)
+    {
+        if (selectedCategoryId == categoryId)
+        {            
+            selectedCategoryId = null;
+        }
+        else
+        {
+            selectedCategoryId = categoryId;
+        }
+    }
+
+    private string GetCategoryButtonClass(Guid? categoryId)
+    {
+        return categoryId == selectedCategoryId
+            ? "category-btn active"
+            : "category-btn";
+    }
+}

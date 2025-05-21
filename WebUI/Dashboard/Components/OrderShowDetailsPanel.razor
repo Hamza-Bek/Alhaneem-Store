@@ -4,6 +4,7 @@
 
 @if (order is not null)
 {
+    <div class="order-cards-container">
     <div class="order-card">
         <h3>Items</h3>
         <ul>
@@ -36,10 +37,21 @@
         <p><strong>Delivery Method:</strong> @order.PaymentStatus</p>
         <p><strong>Total:</strong> $@order.Total EGP</p>
         <div class="invoice-button">
+            @if (order?.Location?.Latitude != null && order.Location.Longitude != null)
+            {
+                <button class="btn location" @onclick="@(() => GetLocationLink(order.Location.Latitude, order.Location.Longitude))">
+                    Copy Location
+                </button>
+                <button class="copy-btn" @onclick="@(() => CopyToClipboard(order.Location.Latitude, order.Location.Longitude))" title="Copy Link">
+                    📋
+                </button>
+            }
+            
             <button class="btn btn-primary" @onclick="@(() => DownloadInvoice(order.Id))">
                 Download Invoice
             </button>
         </div>
+    </div>
     </div>
 }
 else
@@ -72,5 +84,17 @@ else
     private void NavigateToProductView(Guid productId)
     {
         NavigationManager.NavigateTo($"/Product/View/{productId}");
+    }
+
+    private void GetLocationLink(decimal? la, decimal? lo)
+    {
+        NavigationManager.NavigateTo($"https://www.google.com/maps?q={la},{lo}");
+    }
+
+    private async Task CopyToClipboard(decimal? la, decimal? lo)
+    {
+        var link = $"https://www.google.com/maps?q={la},{lo}";
+
+        await JS.InvokeVoidAsync("copyTextToClipboard", link);
     }
 }
