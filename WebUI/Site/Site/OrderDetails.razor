@@ -1,0 +1,65 @@
+﻿@page "/order-details/{OrderId:guid}"
+@inject IOrderService OrderService
+@inject NavigationManager Navigation
+
+@using Application.Dtos.Order
+
+<div class="order-details-wrapper" dir="rtl">
+    @if (isLoading)
+    {
+        <p class="loading-text">جاري تحميل تفاصيل الطلب...</p>
+    }
+    else if (order == null)
+    {
+        <p class="error-text">لم يتم العثور على هذا الطلب.</p>
+    }
+    else
+    {
+        <div class="order-summary">
+            <h2>تفاصيل الطلب رقم @order.OrderNumber</h2>
+            <p><strong>الحالة:</strong> <span class="status @order.OrderStatus.ToString().ToLower()">@order.OrderStatus</span></p>
+            <p><strong>تاريخ الطلب:</strong> @order.CreatedAt.ToString("hh:mm tt - dd MMM yyyy")</p>
+            <p><strong>الإجمالي:</strong> @order.Total EGP</p>
+        </div>
+
+        <div class="order-section">
+            <h3>🛒 العناصر المطلوبة</h3>
+            <div class="order-items-list">
+                @foreach (var item in order.Items)
+                {
+                    <div class="order-item">
+                        <div class="item-name">@item.ProductName</div>
+                        <div class="item-qty">الكمية: @item.Quantity</div>
+                        <div class="item-price">السعر: @item.Price EGP</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="order-section">
+            <h3>📍 عنوان التوصيل</h3>
+            <p><strong>الاسم:</strong> @order.Location?.Name</p>
+            <p><strong>العنوان:</strong> @order.Location?.Address</p>
+            <p><strong>رقم الهاتف:</strong> @order.Location?.PhoneNumber1</p>
+        </div>
+
+        <div class="order-impression">
+            <h3>🎉 شكراً على طلبك!</h3>
+            <p>نتمنى أن تكون تجربتك معنا ممتازة. إذا كان لديك أي ملاحظات أو استفسارات، لا تتردد في التواصل معنا.</p>
+            <a href="/" class="btn-primary">العودة للصفحة الرئيسية</a>
+        </div>
+    }
+</div>
+
+
+@code {
+    [Parameter] public Guid OrderId { get; set; }
+    private OrderDto order;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        order = await OrderService.GetOrderByIdAsync(OrderId);
+        isLoading = false;
+    }
+}

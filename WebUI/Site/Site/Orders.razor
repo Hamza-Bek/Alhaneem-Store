@@ -1,0 +1,72 @@
+﻿@page "/my-orders"
+@using WebUI.Site.Components
+@inject IOrderService OrderService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<div class="orders-wrapper" dir="rtl">
+    <h2 class="orders-title">🛍️ طلباتي</h2>
+
+    @if (isLoading)
+    {
+        <ProductLoader />
+    }
+    else if (orders == null || !orders.Any())
+    {
+        <div class="empty-orders">
+            <img src="https://cdn-icons-png.flaticon.com/512/6134/6134065.png" alt="No Orders" />
+            <h3>لا توجد طلبات حتى الآن</h3>
+            <p>ابدأ التسوق الآن واحصل على طلباتك الأولى!</p>
+            <a href="/" class="btn-primary">العودة للمتجر</a>
+        </div>
+    }
+    else
+    {
+        <div class="orders-table">
+            <div class="order-row header">
+                <div>رقم الطلب</div>
+                <div>الاسم</div>
+                <div>المجموع</div>
+                <div>الحالة</div>
+                <div>التاريخ</div>
+                <div>عرض المنتجات</div>
+            </div>
+
+            @foreach (var order in orders)
+            {
+                <div class="order-row">
+                    <div data-label="رقم الطلب">#@order.OrderNumber</div>
+                    <div data-label="الموقع">@order.Location?.Name</div>
+                    <div data-label="المجموع">@order.Total EGP</div>
+                    <div data-label="الحالة" class="status @order.OrderStatus.ToString().ToLower()">@order.OrderStatus</div>
+                    <div data-label="التاريخ">@order.CreatedAt.ToString("MMMM dd, yyyy")</div>
+                    <div data-label="عرض">
+                        <button class="btn-secondary" @onclick="() => NavigateToDetails(order.Id)">عرض</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<OrderDto> orders;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var sessionId = await JS.InvokeAsync<string>("sessionHelper.getSessionId");
+
+        if (!string.IsNullOrWhiteSpace(sessionId))
+        {
+            orders = await OrderService.GetOrdersBySessionIdAsync(sessionId);
+        }
+        
+        isLoading = false;
+    }
+
+    void NavigateToDetails(Guid orderId)
+    {
+        Navigation.NavigateTo($"/order-details/{orderId}");
+    }
+}
