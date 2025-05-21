@@ -7,5 +7,5 @@ public class ProductImage
     public string ImageUrl { get; set; } = string.Empty;
     public int DisplayOrder { get; set; } = 0;
 
-    public Product Product { get; set; } // Nav prop
+    public Product Product { get; set; }
 }

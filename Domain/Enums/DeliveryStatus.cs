@@ -4,7 +4,7 @@ public enum DeliveryStatus
 {
     Pending,
     Shipped,
-    OutForDelivery,
+    ReadyForDelivery,
     Delivered,
     Returned
 }

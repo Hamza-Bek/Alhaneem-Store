@@ -20,8 +20,9 @@ public class Product : EntityBase
     //Inventory
     public int Stock { get; set; }
     public StockStatus StockStatus { get; set; }
-    
+
     //Foreign Keys & Navigation Properties
-    public string CategoryId { get; set; } = string.Empty;
+    public Guid CategoryId { get; set; }
+    public Category Category { get; set; } = default!;
     public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
 }
