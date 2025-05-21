@@ -3,6 +3,7 @@
 @using Application.Dtos.Product
 @using Application.Services
 @using Domain.Enums
+@inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 @inject IProductAdminService AdminService
 
@@ -23,8 +24,14 @@
     </div>
 
     <div class="form-group">
-        <label for="category">Category ID</label>
-        <InputText id="category" @bind-Value="ProductModel.CategoryId" class="form-control" placeholder="Enter category GUID (optional)" />
+        <label for="category">Category</label>
+        <InputSelect id="category" @bind-Value="ProductModel.CategoryId" class="form-control" required>
+            <option value="">-- Select a category --</option>
+            @foreach (var category in AllCategories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </InputSelect>
     </div>
 
     <div class="form-group">
@@ -57,13 +64,12 @@
         <label class="file-upload-label" for="fileInput">
             <div class="file-upload-design">
                 <svg height="1em" viewBox="0 0 640 512">
-                    <path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39V392c0 13.3 10.7 24 24 24s24-10.7 24-24V257.9l39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z" />
+                    <path d="..." />
                 </svg>
                 <p>Drag and Drop</p>
                 <p>or</p>
                 <span class="browse-button">Browse file</span>
             </div>
-            <!-- Hidden InputFile that matches the design -->
             <InputFile OnChange="HandleFiles" id="fileInput" multiple accept="image/*" style="display:none;" />
         </label>
     </div>
@@ -75,11 +81,11 @@
         }
     </div>
 
-    <button @onclick="UploadImages" class="upload-button">Add Product</button>
+    <button type="submit" class="upload-button">@((IsEditMode ? "Update Product" : "Add Product"))</button>
 </EditForm>
 
 <script>
-    window.selectedImages = []; 
+    window.selectedImages = [];
 
     window.setupImageSelector = function () {
         const fileInput = document.getElementById("file");
@@ -117,13 +123,41 @@
 </script>
 
 @code {
-    private ProductDto ProductModel { get; set; } = new ProductDto();
+    [Parameter]
+    public ProductDto? ExistingProduct { get; set; }
+
+    private ProductDto ProductModel { get; set; } = new();
     private IEnumerable<StockStatus> StockStatusOptions => Enum.GetValues(typeof(StockStatus)).Cast<StockStatus>();
     private bool IsEditMode { get; set; } = false;
     private IReadOnlyList<IBrowserFile>? selectedFiles;
     private List<string> imagePreviews = new();
-    private Guid productId = Guid.NewGuid();
     private List<(string Name, string ContentType, Stream Content)> uploadedStreams = new();
+    private List<CategoryDto> AllCategories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        AllCategories = await AdminService.GetAllCategoriesAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (ExistingProduct != null)
+        {
+            ProductModel = new ProductDto
+            {
+                Id = ExistingProduct.Id,
+                Name = ExistingProduct.Name,
+                Description = ExistingProduct.Description,               
+                CategoryId = ExistingProduct.CategoryId,
+                Price = ExistingProduct.Price,
+                Cost = ExistingProduct.Cost,
+                Stock = ExistingProduct.Stock,
+                StockStatus = ExistingProduct.StockStatus
+            };
+
+            IsEditMode = true;
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -137,37 +171,28 @@
     {
         if (!IsEditMode)
         {
-            ProductModel.Id = productId;
+            ProductModel.Id = Guid.NewGuid();
+            var id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+            ProductModel.CategoryId = Guid.Parse(id);
             var addedProduct = await AdminService.CreateProductAsync(ProductModel);
             if (addedProduct != null)
             {
-                // Optionally, you can show a success message
                 Console.WriteLine("Product added successfully!");
-                // Reset form
-                imagePreviews.Clear();
-                selectedFiles = null;
-                uploadedStreams.Clear();
-                StateHasChanged();
-                productId = Guid.NewGuid();
-                ProductModel = new ProductDto();
+                await UploadImages(); // optional: upload after creating
+                ResetForm();
             }
         }
         else
         {
-            // TODO: Handle Edit Mode later when needed
+            var result = await AdminService.UpdateProductAsync(ProductModel.Id, ProductModel);
+            
+            await JS.InvokeVoidAsync("showToast", "Product Updated!", "success");
+            NavigationManager.NavigateTo("/Admin/Products");
+            await UploadImages(); // optional: upload after update
+            
         }
     }
-    
-    
-    private string GetDisplayName(Enum enumValue)
-    {
-        return enumValue.GetType()
-            .GetMember(enumValue.ToString())
-            .FirstOrDefault()?
-            .GetCustomAttribute<DisplayAttribute>()?
-            .Name ?? enumValue.ToString();
-    }
-    
+
     private async void HandleFiles(InputFileChangeEventArgs e)
     {
         selectedFiles = e.GetMultipleFiles();
@@ -176,31 +201,54 @@
 
         foreach (var file in selectedFiles)
         {
-            using var stream = file.OpenReadStream(10_000_000); // Max 10MB
+            using var stream = file.OpenReadStream(10_000_000);
             var buffer = new byte[file.Size];
-            await stream.ReadAsync(buffer, 0, (int)file.Size); // ✅ async read
-
+            await stream.ReadAsync(buffer, 0, (int)file.Size);
             var base64 = Convert.ToBase64String(buffer);
             imagePreviews.Add($"data:{file.ContentType};base64,{base64}");
         }
 
-        StateHasChanged(); // force UI refresh if needed
+        StateHasChanged();
     }
 
-    
     private async Task UploadImages()
     {
         if (selectedFiles == null || selectedFiles.Count == 0)
             return;
 
-        var success = await AdminService.UploadProductImagesAsync(productId, selectedFiles);
+        var success = await AdminService.UploadProductImagesAsync(ProductModel.Id, selectedFiles);
         if (success)
         {
-            // 🎉 All good
+            Console.WriteLine("Images uploaded!");
         }
         else
         {
-            // ⚠️ Show error
+            Console.WriteLine("Image upload failed.");
         }
+    }
+
+    private void ResetForm()
+    {
+        ProductModel = new ProductDto();
+        imagePreviews.Clear();
+        selectedFiles = null;
+        uploadedStreams.Clear();
+        IsEditMode = false;
+        StateHasChanged();
+    }
+
+    private string GetDisplayName(Enum enumValue)
+    {
+        return enumValue.GetType()
+            .GetMember(enumValue.ToString())
+            .FirstOrDefault()?
+            .GetCustomAttribute<DisplayAttribute>()?
+            .Name ?? enumValue.ToString();
+    }
+
+    public async Task RefreshCategoriesAsync()
+    {
+        AllCategories = await AdminService.GetAllCategoriesAsync();
+        StateHasChanged();
     }
 }

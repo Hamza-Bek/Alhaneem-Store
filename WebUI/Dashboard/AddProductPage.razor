@@ -4,14 +4,31 @@
 
 <div class="container">
     <div class="product-form-box">
-        <AddProductPanel />
+        <AddProductPanel @ref="addProductPanel"/>
     </div>
     <div class="CategoryPanel">
         <div class="Category">
-            <CategoryPanel />
+            <CategoryPanel OnCategoryAdded="HandleCategoryAdded" />
         </div>
         <div class="category-list">
-            <CategoryListPanel />
+            <CategoryListPanel @ref="categoryListPanel"/>
         </div>
     </div>    
 </div>
+
+@code {
+    private AddProductPanel? addProductPanel;
+    private CategoryListPanel? categoryListPanel;
+
+    private async Task HandleCategoryAdded()
+    {
+        if (addProductPanel is not null)
+        {
+            await addProductPanel.RefreshCategoriesAsync();
+        }
+        if (categoryListPanel is not null)
+        {
+            await categoryListPanel.RefreshAsync();
+        }
+    }
+}
